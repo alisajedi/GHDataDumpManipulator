@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import Utils.Constants.ConditionType;
+import Utils.Constants.FieldType;
+import Utils.Constants.LogicalOperand;
+
 public class MyUtils {
 	//----------------------------------------------------------------------------------------------------------------
 	public static String moveTheBufferedReaderCursorToTheLineAfter(BufferedReader br, String startingString){
@@ -65,4 +69,74 @@ public class MyUtils {
 		return value;
 	}
 	//----------------------------------------------------------------------------------------------------------------
+	public static boolean compareTwoStringsBasedOnconditionType(String valueA, ConditionType conditionType, String valueB, FieldType fieldType){
+		boolean result;
+		switch (conditionType){
+			case EQUALS:
+				result = valueA.equals(valueB);
+				break;
+			case NOT_EQUALS:
+				result = !valueA.equals(valueB);
+				break;
+			case GREATER_OR_EQUAL:
+				switch(fieldType){
+				case INTEGER:
+					if (valueA.equals(" ") || valueA.equals(""))
+						valueA = Integer.toString(Constants.AN_EXTREMELY_NEGATIVE_INT);
+//					if (valueB.equals("") || valueB.equals(" "))
+//						valueB = Integer.toString(Constants.AN_EXTREMELY_NEGATIVE_INT);
+					result = (Integer.parseInt(valueA) >= Integer.parseInt(valueB));
+					break;
+				case STRING:
+					result = valueA.compareTo(valueB) >= 0; //if result of str1.compareTo(str2) is positive, then str1 > str2
+					break;
+				default:
+					result = true;
+					System.out.println("Warning: You are comparing two fields with GREATER_OR_EQUAL, but with NOT_IMPORTANT fieldType!");
+					break;
+				}//switch.
+				break;
+			default:
+				result = false;
+				break;
+		}//switch.
+		return result;
+	}//compareTwoStringsBasedOnconditionType().
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static boolean compareTwoStringArrays(String[] s1, String[] s2){
+		boolean result = true;
+		if (s1.length != s2.length)
+			result = false;
+		else
+			for (int i=0; i<s1.length; i++)
+				if (!s1[i].equals(s2[i])){
+					result = false;
+					break;
+				}
+		return result;
+	}//compareTwoStringArrays().
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static boolean runLogicalComparison(LogicalOperand logicalOperand, 
+			String value1A, ConditionType condition1Type, String value1B, FieldType field1Type, 
+			String value2A, ConditionType condition2Type, String value2B, FieldType field2Type){
+		boolean result = false;
+		if (logicalOperand == LogicalOperand.NO_CONDITION)
+			result = true;
+		else{
+			boolean resultOfCondition1 = compareTwoStringsBasedOnconditionType(value1A, condition1Type, value1B, field1Type);
+			if (resultOfCondition1)
+				if (logicalOperand == LogicalOperand.AND)
+					result = compareTwoStringsBasedOnconditionType(value2A, condition2Type, value2B, field2Type);
+				else
+					result = true;
+			else //i.e., when resultOfCondition1 is not true:
+				if (logicalOperand == LogicalOperand.OR)
+					result = compareTwoStringsBasedOnconditionType(value2A, condition2Type, value2B, field2Type);
+				else
+					result = false;
+		}//else.
+		return result;
+	}//runLogicalComparison().
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+
 }

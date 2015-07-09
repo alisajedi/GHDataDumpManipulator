@@ -243,13 +243,22 @@ public class Constants {
 	
 	public static final long THIS_IS_A_TEST = 10000;
 	public static final long THIS_IS_REAL = -1;//unlimited!
+	public static final int AN_EXTREMELY_NEGATIVE_INT = -999999; 
 	//Sort order:
-	public enum SortOrder{
+	public enum SortOrder{ 
 		ASCENDING_INTEGER, DESCENDING_INTEGER, DEFAULT_FOR_STRING
 	}
-	
+
+	public enum FieldType{
+		INTEGER, STRING, NOT_IMPORTANT
+	}
+
+	public enum LogicalOperand { 
+		NO_CONDITION, AND, OR, IGNORE_THE_SECOND_OPERAND
+	}
+
 	public enum ConditionType {
-		NO_CONDITION, AND, OR
+		EQUALS, NOT_EQUALS, NOTHING, GREATER_OR_EQUAL
 	}
 	
 	public static void main(String[] args) {
