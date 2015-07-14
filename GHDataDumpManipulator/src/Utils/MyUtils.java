@@ -140,7 +140,7 @@ public class MyUtils {
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 	public static FileConversionResult addFileConversionResults(FileConversionResult fCR1, FileConversionResult fCR2){
 		FileConversionResult result = new FileConversionResult();
-		result.converted = fCR1.converted + fCR2.converted;
+		result.DoneSuccessfully = fCR1.DoneSuccessfully + fCR2.DoneSuccessfully;
 		result.processed = fCR1.processed + fCR2.processed;
 		result.errors = fCR1.errors + fCR2.errors;
 		return result;

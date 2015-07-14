@@ -18,7 +18,7 @@ public class GHFolderToTSV {
 	private static FileConversionResult aggregateResults(FileConversionResult fcr1, FileConversionResult fcr2){
 		FileConversionResult result = new FileConversionResult ();
 		result.processed = fcr1.processed + fcr2.processed;
-		result.converted = fcr1.converted + fcr2.converted;
+		result.DoneSuccessfully = fcr1.DoneSuccessfully + fcr2.DoneSuccessfully;
 		result.errors = fcr1.errors + fcr2.errors;
 		return result;
 	}
@@ -165,7 +165,7 @@ public class GHFolderToTSV {
 					}/*while.*/																												test = 16;
 				} /*while.*/																												test = 17;
 				writer.flush(); writer.close();
-				result.converted++;
+				result.DoneSuccessfully++;
 			}//if (Constants.DUMP_TABLES_AND_THEIR_FIELDS....
 			System.out.println(MyUtils.indent(indentationLevel) + fileCounter + "-1- Finished.");
 			result.processed++;
@@ -197,7 +197,7 @@ public class GHFolderToTSV {
         System.out.println("-----------------------------------");
         System.out.println("-----------------------------------");
 		System.out.println(fcr.processed + " files processed.");
-		System.out.println(fcr.converted + " files converted to TSV.");
+		System.out.println(fcr.DoneSuccessfully + " files converted to TSV.");
 		if (fcr.errors == 0){
 			System.out.println("Done successfully!");
 		}
@@ -213,11 +213,11 @@ public class GHFolderToTSV {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args) {
-//		File path = new File(Constants.DATASET_DIRECTORY_GH_MySQL);
-//		convertAllFilseInFolderToTSV(path, Constants.DATASET_DIRECTORY_GH_TSV, 10000);
+		File path = new File(Constants.DATASET_DIRECTORY_GH_MySQL);
+		convertAllFilseInFolderToTSV(path, Constants.DATASET_DIRECTORY_GH_TSV, 10000);
 
-		File path = new File(Constants.DATASET_EXTERNAL_DIRECTORY_GH_MySQL);
-		convertAllFilseInFolderToTSV(path, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, 1000000);
+//		File path = new File(Constants.DATASET_EXTERNAL_DIRECTORY_GH_MySQL);
+//		convertAllFilseInFolderToTSV(path, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, 1000000);
 		
 //		System.out.println(numberOfASpecificCharacterBeforeAStringBeforeEnd("'dtype=[(str(\\'a\\'),\\'i\\')", '\\', "')"));
 	}//main().

@@ -29,7 +29,7 @@ public class Constants {
   //JustNumberFields (No text field, no dateTime field):
     public static final Map<String, List<String>> DUMP_TABLES_AND_THEIR_FIELDS = ImmutableMap.<String, List<String>> builder() 
 	        .put("commit_comments:neededFields", Arrays.asList(new String[] { "id", "commit_id", "user_id", "line", "position", "comment_id" }))
-	        .put("commit_comments:titlesForNeededFields", Arrays.asList(new String[] { "id", "commitIdd", "userId", "line", "position", "commentId" }))
+	        .put("commit_comments:titlesForNeededFields", Arrays.asList(new String[] { "id", "commitId", "userId", "line", "position", "commentId" }))
 	        .put("commit_comments:fieldsToRemoveInvalidCharacters", Arrays.asList(new String[] { "body" }))
 	        
 //"commit_parents" is not needed:

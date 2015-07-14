@@ -495,6 +495,7 @@ public class TSVManipulations {
 			writer.close();
 			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records written: " + Constants.integerFormatter.format(i) + ".");
 			System.out.println(MyUtils.indent(indentationLevel+1) +  "Finished.");
+			fCR.DoneSuccessfully = 1;
 			return fCR;
 		}catch (Exception e){
 			e.printStackTrace();
@@ -555,7 +556,7 @@ public class TSVManipulations {
 			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
 			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Counting values for \"" + keyField + "\" (in \"" + inputPathAndFileName + "\"):");
 			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
-			int error = 0;
+			int error1=0, error2 = 0;
 			String[] fields, titles;
 			int i=0, keyFieldNumber = Constants.ERROR;
 			String s, keyFieldValue;
@@ -565,33 +566,39 @@ public class TSVManipulations {
 				if (titles[j].equals(keyField))
 					keyFieldNumber = j;
 			if (keyFieldNumber == Constants.ERROR)
-				error++;
+				error1++;
 			else
 				while ((s=br.readLine())!=null){
-					fields = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
-					if (fields.length != totalFieldsCount)
-						error++;
-					else{
-						keyFieldValue = fields[keyFieldNumber];
-						if (keySetToCheckExistenceOfKeyField == null || keySetToCheckExistenceOfKeyField.contains(keyFieldValue)){
-							long count;
-							if (result.containsKey(keyFieldValue))
-								count = result.get(keyFieldValue)+1;
-							else
-								count = 1;
-							result.put(keyFieldValue, count);
-						}						
-					}//else.
-					i++;
-					if (i % showProgressInterval == 0)
-						System.out.println(MyUtils.indent(indentationLevel+1) +  Constants.integerFormatter.format(i));
-					if (testOrReal > Constants.THIS_IS_REAL)
-						if (i >= testOrReal)
-							break;
+					if (!s.equals("")){
+						fields = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+						if (fields.length != totalFieldsCount)
+							error2++;
+						else{
+							keyFieldValue = fields[keyFieldNumber];
+							if (keySetToCheckExistenceOfKeyField == null || keySetToCheckExistenceOfKeyField.contains(keyFieldValue)){
+								long count;
+								if (result.containsKey(keyFieldValue))
+									count = result.get(keyFieldValue)+1;
+								else
+									count = 1;
+								result.put(keyFieldValue, count);
+							}						
+						}//else.
+						i++;
+						if (i % showProgressInterval == 0)
+							System.out.println(MyUtils.indent(indentationLevel+1) +  Constants.integerFormatter.format(i));
+						if (testOrReal > Constants.THIS_IS_REAL)
+							if (i >= testOrReal)
+								break;
+					}//if.
 				}//while ((s=br....
 			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read: " + Constants.integerFormatter.format(i) + ".");
-			if (error>0){
-				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with != " + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error));
+			if (error1>0){
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) \"" + keyField + "\" was not identified!");
+				fCRArray[0].errors = 1;
+			}
+			if (error2>0){
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with != " + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error2));
 				fCRArray[0].errors = 1;
 			}
 			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
@@ -714,22 +721,35 @@ public class TSVManipulations {
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//This file replaces a foreign key (e.g., userId) with its value from another TSV (provided that the relation is 1:1 or 1:n)
-	public static void replaceForeignKeyInTSVWithValueFromAnotherTSV(String foreignKeyInputPathAndFileName,  
+	public static FileConversionResult replaceForeignKeyInTSVWithValueFromAnotherTSV(String foreignKeyInputPathAndFileName,  
 			String primaryKeyInputPathAndFileName, 
 			String outputPathAndFileName, 
-			int foreignKeyFieldNumber, int foreignKeyTotalFieldsNumber,
-			int PrimaryKeyFieldNumber, int primaryKeyTotalFieldsNumber, 
-			int primaryKeySubstituteFieldNumber, //this is the number of the field that is written instead of foreign key.
-			String substituteTitle,
+			String fKField, int foreignKeyTotalFieldsNumber,
+			String pKField, int primaryKeyTotalFieldsNumber, 
+			String pKSubstituteField, //this is the field that is written instead of foreign key.
+			String substituteNewTitle,//under this title.
 			int showProgressInterval,
 			long testOrReal, String writeMessageStep
 			){
+		FileConversionResult fCR = new FileConversionResult();
 		try{ 
 			int error = 0;
-			String[] fields;
-			int i=0;
+			String[] titles;
+			int i=0, PrimaryKeyFieldNumber = Constants.ERROR, foreignKeyFieldNumber = Constants.ERROR, primaryKeySubstituteFieldNumber = Constants.ERROR;
 			String s, header, outputLine;
 
+			BufferedReader br;
+			br = new BufferedReader(new FileReader(primaryKeyInputPathAndFileName)); 
+			s = br.readLine();
+			titles = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			for (int j=0; j< titles.length; j++){
+				if (titles[j].equals(pKField))
+					PrimaryKeyFieldNumber = j;
+				if (titles[j].equals(pKSubstituteField))
+					primaryKeySubstituteFieldNumber = j;
+			}//for.
+			br.close();
+			
 			TreeMap<String, String[]> primaryKeyRecords = TSVManipulations.readUniqueKeyAndItsValueFromTSV(
 					primaryKeyInputPathAndFileName, null, PrimaryKeyFieldNumber, primaryKeyTotalFieldsNumber, "ALL", LogicalOperand.NO_CONDITION, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 100000, testOrReal, "1");
 			//TreeMap<String, String[]> foreignKeyRecords = TSVManipulations.readUniqueKeyAndItsValueFromTSV(foreignKeyInputTSVPath, foreignKeyInputTSVFile, ForeignKeyFieldNumber, foreignKeyTotalFieldsNumber, ConditionType.NO_CONDITION, 0, "", 0, "", 100000, testOrReal, 2);
@@ -737,22 +757,26 @@ public class TSVManipulations {
 			System.out.println("    Started ...");
 			String[] theFKRecord, aPKRecord;
 
-			BufferedReader br;
 			//Reading the header and substituting the foreign key field title:
 			br = new BufferedReader(new FileReader(foreignKeyInputPathAndFileName)); 
-			FileWriter writer = new FileWriter(outputPathAndFileName);
 			s = br.readLine();
-			fields = s.split("\t");
+			titles = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			for (int j=0; j< titles.length; j++){
+				if (titles[j].equals(fKField))
+					foreignKeyFieldNumber = j;
+			}//for.
+
 			if (foreignKeyFieldNumber == 0)
-				header = substituteTitle;
+				header = substituteNewTitle;
 			else
-				header = fields[0];
+				header = titles[0];
 			for (int j=1; j<foreignKeyTotalFieldsNumber; j++)
 				if (j == foreignKeyFieldNumber)
-					header = header + "\t" + substituteTitle;
+					header = header + "\t" + substituteNewTitle;
 				else
-					header = header + "\t" + fields[j];
+					header = header + "\t" + titles[j];
 			header = header + "\n";
+			FileWriter writer = new FileWriter(outputPathAndFileName);
 			writer.append(header);
 			//Now, replacing the FK with values from PK file:
 			while ((s=br.readLine())!=null){
@@ -782,11 +806,19 @@ public class TSVManipulations {
 			writer.flush();writer.close();
 			br.close();
 			System.out.println("        " + Constants.integerFormatter.format(i) + " records have been read.");
-			if (error>0)
+			fCR.processed = 1;
+			if (error>0){
 				System.out.println("        Error) Number of FK records with !=" + foreignKeyTotalFieldsNumber + " fields: " + error);
+				fCR.errors = 1;
+			}//if.
+			else
+				fCR.DoneSuccessfully = 1;
 			System.out.println("    Finished.");
+			return fCR;
 		}catch(Exception e){
 			e.printStackTrace();
+			fCR.errors = 1;
+			return fCR;
 		}
 	}//replaceForeignKeyInTSVWithValueFromAnotherTSV().
 	//--------------------------------------------------------------------------------------------------------------------------------------------
