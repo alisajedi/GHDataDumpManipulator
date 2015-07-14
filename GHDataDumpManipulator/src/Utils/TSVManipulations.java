@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
-//import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -79,7 +79,7 @@ public class TSVManipulations {
 			int field1Number, ConditionType condition1Type, String field1Value, FieldType field1Type, 
 			int field2Number, ConditionType condition2Type, String field2Value, FieldType field2Type, 
 			int showProgressInterval,
-			long testOrReal, int writeMessageStep){//This method reads TSV lines into HashMap. The key is a unique field and value is a String[] containing all the values of that row. 
+			long testOrReal, String writeMessageStep){//This method reads TSV lines into HashMap. The key is a unique field and value is a String[] containing all the values of that row. 
 		TreeMap<String, String[]> tsvRecordsHashMap = new TreeMap<String, String[]>();
 		try{ 
 			BufferedReader br;
@@ -127,9 +127,9 @@ public class TSVManipulations {
 					System.out.println("        " +  Constants.integerFormatter.format(i));
 			}//while ((s=br....
 			if (error1>0)
-				System.out.println("        Error) Number of records with !=" + totalFieldsCount + " fields: " + error1);
+				System.out.println("        Error) Number of records with !=" + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error1));
 			if (error2>0)
-				System.out.println("        Error) Number of records with repeated keyField: " + error2);
+				System.out.println("        Error) Number of records with repeated keyField: " + Constants.integerFormatter.format(error2));
 
 			if (logicalOperand == LogicalOperand.NO_CONDITION)
 				System.out.println("        Number of records read: " + Constants.integerFormatter.format(matchedRec));
@@ -337,7 +337,7 @@ public class TSVManipulations {
 			int field1Number, ConditionType condition1Type, String field1Value, FieldType field1Type, 
 			int field2Number, ConditionType condition2Type, String field2Value, FieldType field2Type, 
 			int showProgressInterval, 
-			long testOrReal, int writeMessageStep){//This method reads TSV lines into HashMap. 
+			long testOrReal, String writeMessageStep){//This method reads TSV lines into HashMap. 
 		//The key is a non-unique field (#keyfieldNumber) and value is an ArrayList<String[]> containing all the values of all the rows that have the same keyFieldNumber. Values of each row is stored in a String[].
 		//		TreeMap<String, ArrayList<String[]>> tsvRecordsHashMap = new TreeMap<String, ArrayList<String[]>>();
 		TreeMap<String, ArrayList<String[]>> tsvRecordsTreeMap;
@@ -472,6 +472,247 @@ public class TSVManipulations {
 		return tsvRecordsTreeMap;
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
+	public static FileConversionResult saveKeyAndValuesAsTSVFile(String outputPathAndFileName, TreeMap<String, Long> counts, 
+			int totalFieldsCount, String[] titles,
+			int showProgressInterval, int indentationLevel,
+			long testOrReal, String writeMessageStep){
+		FileConversionResult fCR = new FileConversionResult();
+		try{
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Writing file \"" + outputPathAndFileName + "\"");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
+			int i = 0;
+			FileWriter writer = new FileWriter(outputPathAndFileName);
+			writer.append(titles[0] + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + titles[1] + "\n");
+			for(Map.Entry<String,Long> entry : counts.entrySet()) {
+				  String key = entry.getKey();
+				  Long value = entry.getValue();
+				  writer.append(key + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + value + "\n");
+				  i++;
+				  if (i % showProgressInterval == 0)
+					  System.out.println(MyUtils.indent(indentationLevel+1) +  Constants.integerFormatter.format(i));
+				}
+			writer.flush();
+			writer.close();
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records written: " + Constants.integerFormatter.format(i) + ".");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Finished.");
+			return fCR;
+		}catch (Exception e){
+			e.printStackTrace();
+			fCR.errors = 1;
+			return fCR;
+		}
+	}//saveCountsAsTSVFile().
+	//--------------------------------------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------------------------------------------
+	public static TreeMap<String, Long> groupBy_count_fromTSV(String inputPathAndFileName, Set<String> keySetToCheckExistenceOfKeyField, 
+			String keyField, Constants.SortOrder sortOrder, int totalFieldsCount, FileConversionResult[] fCRArray, 
+			int showProgressInterval, int indentationLevel,
+			long testOrReal, String writeMessageStep){//This method reads TSV lines and counts the records for each key (something like getting count(x) after group by key in SQL). 
+		TreeMap<String, Long> result = new TreeMap<String, Long>();
+		if (sortOrder == Constants.SortOrder.DEFAULT_FOR_STRING)//means that keyfield is not integer.
+			result = new TreeMap<String, Long>();
+		else
+			if (sortOrder == Constants.SortOrder.ASCENDING_INTEGER){//means that keyfield is an integer.
+				result = new TreeMap<String, Long>(new Comparator<String>(){
+					public int compare(String s1, String s2){//We want the ascending order of number:
+						//You can comment these (4) lines if you don't have empty (or space) values:
+						if (s1.equals("") || s1.equals(" "))
+							s1 = Long.toString(Constants.AN_EXTREMELY_NEGATIVE_LONG);
+						if (s2.equals("") || s2.equals(" "))
+							s2 = Long.toString(Constants.AN_EXTREMELY_NEGATIVE_LONG);
+						//Up to here.
+						if (Long.parseLong(s1) > Long.parseLong(s2))
+							return 1;
+						else
+							if (Long.parseLong(s1) < Long.parseLong(s2))
+								return -1;
+							else
+								return 0;
+					}
+				}); //result = new Tree...
+			}//if.
+			else{
+				result = new TreeMap<String, Long>(new Comparator<String>(){
+					public int compare(String s1, String s2){//We want the descending order of number:
+						//You can comment these (4) lines if you don't have empty (or space) values:
+						if (s1.equals("") || s1.equals(" "))
+							s1 = Long.toString(Constants.AN_EXTREMELY_POSITIVE_LONG);
+						if (s2.equals("") || s2.equals(" "))
+							s2 = Long.toString(Constants.AN_EXTREMELY_POSITIVE_LONG);
+						//Up to here.
+						if (Long.parseLong(s1) < Long.parseLong(s2))
+							return 1;
+						else
+							if (Long.parseLong(s1) > Long.parseLong(s2))
+								return -1;
+							else
+								return 0;
+					}
+				});
+			}//else.
+		try{ 
+			BufferedReader br;
+			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Counting values for \"" + keyField + "\" (in \"" + inputPathAndFileName + "\"):");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
+			int error = 0;
+			String[] fields, titles;
+			int i=0, keyFieldNumber = Constants.ERROR;
+			String s, keyFieldValue;
+			s = br.readLine(); //header.
+			titles = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			for (int j=0; j< titles.length; j++)
+				if (titles[j].equals(keyField))
+					keyFieldNumber = j;
+			if (keyFieldNumber == Constants.ERROR)
+				error++;
+			else
+				while ((s=br.readLine())!=null){
+					fields = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+					if (fields.length != totalFieldsCount)
+						error++;
+					else{
+						keyFieldValue = fields[keyFieldNumber];
+						if (keySetToCheckExistenceOfKeyField == null || keySetToCheckExistenceOfKeyField.contains(keyFieldValue)){
+							long count;
+							if (result.containsKey(keyFieldValue))
+								count = result.get(keyFieldValue)+1;
+							else
+								count = 1;
+							result.put(keyFieldValue, count);
+						}						
+					}//else.
+					i++;
+					if (i % showProgressInterval == 0)
+						System.out.println(MyUtils.indent(indentationLevel+1) +  Constants.integerFormatter.format(i));
+					if (testOrReal > Constants.THIS_IS_REAL)
+						if (i >= testOrReal)
+							break;
+				}//while ((s=br....
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read: " + Constants.integerFormatter.format(i) + ".");
+			if (error>0){
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with != " + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error));
+				fCRArray[0].errors = 1;
+			}
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
+//			System.out.println();
+			br.close();
+		}catch (Exception e){
+			e.printStackTrace();
+			fCRArray[0].errors = 1;
+		}
+		return result;
+	}
+	//--------------------------------------------------------------------------------------------------------------------------------------------
+	public static TreeMap<String, Long> groupBy_sum_fromTSV(String inputPathAndFileName, Set<String> keySetToCheckExistenceOfKeyField, 
+			String keyField, String summingField, Constants.SortOrder sortOrder, int totalFieldsCount, FileConversionResult[] fCRArray, 
+			int showProgressInterval, int indentationLevel,
+			long testOrReal, String writeMessageStep){//This method reads TSV lines and counts the records for each key (something like getting count(x) after group by key in SQL). 
+		TreeMap<String, Long> result = new TreeMap<String, Long>();
+		if (sortOrder == Constants.SortOrder.DEFAULT_FOR_STRING)//means that keyfield is not integer.
+			result = new TreeMap<String, Long>();
+		else
+			if (sortOrder == Constants.SortOrder.ASCENDING_INTEGER){//means that keyfield is an integer.
+				result = new TreeMap<String, Long>(new Comparator<String>(){
+					public int compare(String s1, String s2){//We want the ascending order of number:
+						//You can comment these (4) lines if you don't have empty (or space) values:
+						if (s1.equals("") || s1.equals(" "))
+							s1 = Long.toString(Constants.AN_EXTREMELY_NEGATIVE_LONG);
+						if (s2.equals("") || s2.equals(" "))
+							s2 = Long.toString(Constants.AN_EXTREMELY_NEGATIVE_LONG);
+						//Up to here.
+						if (Long.parseLong(s1) > Long.parseLong(s2))
+							return 1;
+						else
+							if (Long.parseLong(s1) < Long.parseLong(s2))
+								return -1;
+							else
+								return 0;
+					}
+				}); //result = new Tree...
+			}//if.
+			else{
+				result = new TreeMap<String, Long>(new Comparator<String>(){
+					public int compare(String s1, String s2){//We want the descending order of number:
+						//You can comment these (4) lines if you don't have empty (or space) values:
+						if (s1.equals("") || s1.equals(" "))
+							s1 = Long.toString(Constants.AN_EXTREMELY_POSITIVE_LONG);
+						if (s2.equals("") || s2.equals(" "))
+							s2 = Long.toString(Constants.AN_EXTREMELY_POSITIVE_LONG);
+						//Up to here.
+						if (Long.parseLong(s1) < Long.parseLong(s2))
+							return 1;
+						else
+							if (Long.parseLong(s1) > Long.parseLong(s2))
+								return -1;
+							else
+								return 0;
+					}
+				});
+			}//else.
+		try{ 
+			BufferedReader br;
+			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Sum(" + summingField + ") after grouping by \"" + keyField + "\" (in \"" + inputPathAndFileName + "\"):");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
+			int error = 0;
+			String[] fields, titles;
+			int i=0, keyFieldNumber = Constants.ERROR, summingFieldNumber = Constants.ERROR;
+			String s, keyFieldValue, summingFieldValue;
+			s = br.readLine(); //header.
+			titles = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			for (int j=0; j< titles.length; j++){
+				if (titles[j].equals(keyField))
+					keyFieldNumber = j;
+				if (titles[j].equals(summingField))
+					summingFieldNumber = j;
+			}//for.
+			if (keyFieldNumber == Constants.ERROR || summingFieldNumber == Constants.ERROR)
+				error++;
+			else
+				while ((s=br.readLine())!=null){
+					fields = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+					if (fields.length != totalFieldsCount)
+						error++;
+					else{
+						keyFieldValue = fields[keyFieldNumber];
+						summingFieldValue = fields[summingFieldNumber];
+						if (keySetToCheckExistenceOfKeyField == null || keySetToCheckExistenceOfKeyField.contains(keyFieldValue)){
+							long theNewValue;
+							if (summingFieldValue.equals(""))
+								theNewValue = 0;
+							else
+								theNewValue = Integer.parseInt(summingFieldValue);
+							long theNewValuePlusSumOfAllOtherValues;
+							if (result.containsKey(keyFieldValue))
+								theNewValuePlusSumOfAllOtherValues = result.get(keyFieldValue)+theNewValue;
+							else
+								theNewValuePlusSumOfAllOtherValues = theNewValue;
+							result.put(keyFieldValue, theNewValuePlusSumOfAllOtherValues);
+						}						
+					}//else.
+					i++;
+					if (i % showProgressInterval == 0)
+						System.out.println(MyUtils.indent(indentationLevel+1) +  Constants.integerFormatter.format(i));
+					if (testOrReal > Constants.THIS_IS_REAL)
+						if (i >= testOrReal)
+							break;
+				}//while ((s=br....
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read: " + Constants.integerFormatter.format(i) + ".");
+			if (error>0){
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with != " + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error));
+				fCRArray[0].errors = 1;
+			}
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
+//			System.out.println();
+			br.close();
+		}catch (Exception e){
+			e.printStackTrace();
+			fCRArray[0].errors = 1;
+		}
+		return result;
+	}
+	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//This file replaces a foreign key (e.g., userId) with its value from another TSV (provided that the relation is 1:1 or 1:n)
 	public static void replaceForeignKeyInTSVWithValueFromAnotherTSV(String foreignKeyInputPathAndFileName,  
 			String primaryKeyInputPathAndFileName, 
@@ -481,7 +722,7 @@ public class TSVManipulations {
 			int primaryKeySubstituteFieldNumber, //this is the number of the field that is written instead of foreign key.
 			String substituteTitle,
 			int showProgressInterval,
-			long testOrReal, int writeMessageStep
+			long testOrReal, String writeMessageStep
 			){
 		try{ 
 			int error = 0;
@@ -490,7 +731,7 @@ public class TSVManipulations {
 			String s, header, outputLine;
 
 			TreeMap<String, String[]> primaryKeyRecords = TSVManipulations.readUniqueKeyAndItsValueFromTSV(
-					primaryKeyInputPathAndFileName, null, PrimaryKeyFieldNumber, primaryKeyTotalFieldsNumber, "", LogicalOperand.NO_CONDITION, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 100000, testOrReal, 1);
+					primaryKeyInputPathAndFileName, null, PrimaryKeyFieldNumber, primaryKeyTotalFieldsNumber, "ALL", LogicalOperand.NO_CONDITION, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 100000, testOrReal, "1");
 			//TreeMap<String, String[]> foreignKeyRecords = TSVManipulations.readUniqueKeyAndItsValueFromTSV(foreignKeyInputTSVPath, foreignKeyInputTSVFile, ForeignKeyFieldNumber, foreignKeyTotalFieldsNumber, ConditionType.NO_CONDITION, 0, "", 0, "", 100000, testOrReal, 2);
 			System.out.println("2- Producing output (foreign key replaced by value) ...");
 			System.out.println("    Started ...");
@@ -518,7 +759,10 @@ public class TSVManipulations {
 				theFKRecord = s.split("\t");
 				if (theFKRecord.length == foreignKeyTotalFieldsNumber){
 					aPKRecord = primaryKeyRecords.get(theFKRecord[foreignKeyFieldNumber]);
-					theFKRecord[foreignKeyFieldNumber] = aPKRecord[primaryKeySubstituteFieldNumber];
+					if (aPKRecord == null)//:means that the foreign key points to something that does not exist. return "" (NULL) in this case.
+						theFKRecord[foreignKeyFieldNumber] = "";
+					else
+						theFKRecord[foreignKeyFieldNumber] = aPKRecord[primaryKeySubstituteFieldNumber];
 					outputLine = theFKRecord[0];
 					for (int j=1; j<theFKRecord.length; j++)
 						outputLine = outputLine + "\t" + theFKRecord[j];

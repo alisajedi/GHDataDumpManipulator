@@ -15,12 +15,17 @@ import com.google.common.collect.ImmutableMap;
 
 public class Constants { 
 	//GH Dataset:
-    public static final String DATASET_DIRECTORY_GH_MySQL = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\SQL";
+    //SQL files:
+	public static final String DATASET_DIRECTORY_GH_MySQL = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\SQL";
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_MySQL = "E:\\Influentials\\DataSet\\MySQL-20150401\\SQL";
+    //TSV files:
     public static final String DATASET_DIRECTORY_GH_TSV = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV";
+    public static final String DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV\\JustNumericFields";
+    public static final String DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV\\JustNumericFields\\Aggregated";
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV";
-
- 
+    public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\JustNumericFields";
+    public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\JustNumericFields\\Aggregated";
+    
   //JustNumberFields (No text field, no dateTime field):
     public static final Map<String, List<String>> DUMP_TABLES_AND_THEIR_FIELDS = ImmutableMap.<String, List<String>> builder() 
 	        .put("commit_comments:neededFields", Arrays.asList(new String[] { "id", "commit_id", "user_id", "line", "position", "comment_id" }))
@@ -243,14 +248,16 @@ public class Constants {
 	
 	public static final long THIS_IS_A_TEST = 10000;
 	public static final long THIS_IS_REAL = -1;//unlimited!
-	public static final int AN_EXTREMELY_NEGATIVE_INT = -999999; 
+	public static final int ERROR = -1;
+	public static final long AN_EXTREMELY_NEGATIVE_LONG = Long.MIN_VALUE; 
+	public static final long AN_EXTREMELY_POSITIVE_LONG = Long.MAX_VALUE; 
 	//Sort order:
 	public enum SortOrder{ 
 		ASCENDING_INTEGER, DESCENDING_INTEGER, DEFAULT_FOR_STRING
 	}
 
 	public enum FieldType{
-		INTEGER, STRING, NOT_IMPORTANT
+		LONG, STRING, NOT_IMPORTANT
 	}
 
 	public enum LogicalOperand { 
@@ -288,6 +295,9 @@ public class Constants {
 		double a = 0.0000004;
 		System.out.println(highPrecisionFloatFormatter.format(0.0000004));
 		System.out.println(Constants.highPrecisionFloatFormatter.format(a));
+		
+		
+	
 	}
 
 }

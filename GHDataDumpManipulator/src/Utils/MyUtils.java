@@ -80,9 +80,9 @@ public class MyUtils {
 				break;
 			case GREATER_OR_EQUAL:
 				switch(fieldType){
-				case INTEGER:
+				case LONG:
 					if (valueA.equals(" ") || valueA.equals(""))
-						valueA = Integer.toString(Constants.AN_EXTREMELY_NEGATIVE_INT);
+						valueA = Long.toString(Constants.AN_EXTREMELY_NEGATIVE_LONG);
 //					if (valueB.equals("") || valueB.equals(" "))
 //						valueB = Integer.toString(Constants.AN_EXTREMELY_NEGATIVE_INT);
 					result = (Integer.parseInt(valueA) >= Integer.parseInt(valueB));
@@ -138,5 +138,11 @@ public class MyUtils {
 		return result;
 	}//runLogicalComparison().
 	//------------------------------------------------------------------------------------------------------------------------------------------------
-
+	public static FileConversionResult addFileConversionResults(FileConversionResult fCR1, FileConversionResult fCR2){
+		FileConversionResult result = new FileConversionResult();
+		result.converted = fCR1.converted + fCR2.converted;
+		result.processed = fCR1.processed + fCR2.processed;
+		result.errors = fCR1.errors + fCR2.errors;
+		return result;
+	}
 }
