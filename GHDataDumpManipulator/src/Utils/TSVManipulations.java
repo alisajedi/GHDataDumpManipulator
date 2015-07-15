@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -992,8 +993,31 @@ public class TSVManipulations {
 			//Now joining T1Records and T2Records:
 			//inner join:
 			TreeMap<String, ArrayList<String[]>> resultingRecords = new TreeMap<String, ArrayList<String[]>>();
-			for(Map.Entry<String, ArrayList<String[]>> entry1: t1Records.entrySet()){
-				for(Map.Entry<String, ArrayList<String[]>> entry2: t2Records.entrySet()){
+//			Iterator<Map.Entry<String,ArrayList<String[]>>> iter1 = t1Records.entrySet().iterator();
+//			while (iter1.hasNext()){
+//				Iterator<Map.Entry<String,ArrayList<String[]>>> iter2 = t2Records.entrySet().iterator();
+//				Map.Entry<String,ArrayList<String[]>> entry1 = iter1.next();
+//				while (iter2.hasNext()){
+//					Map.Entry<String,ArrayList<String[]>> entry2 = iter2.next();
+//					if (entry1.getKey().equals(entry2.getKey())){//:this is the join condition.
+//						ArrayList<String[]> joinedValues = new ArrayList<String[]>();
+//						for (int j=0; j<entry1.getValue().size(); j++)
+//							for (int k=0; k<entry2.getValue().size(); k++){
+//								//Making records of <entry1Values[j], entry2Values[k]>
+//								String[] aResultingRecord = MyUtils.concatTwoStringArrays(entry1.getValue().get(j), entry2.getValue().get(k));
+//								joinedValues.add(aResultingRecord);
+//							}//for k.
+//						resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
+//						iter1.remove();
+//						iter2.remove();
+//					}//if.
+//				}
+//			}
+//			
+			for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter1 = t1Records.entrySet().iterator(); iter1.hasNext();){
+				Map.Entry<String,ArrayList<String[]>> entry1 = iter1.next();
+				for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter2 = t2Records.entrySet().iterator(); iter2.hasNext();){
+					Map.Entry<String,ArrayList<String[]>> entry2 = iter2.next();
 					if (entry1.getKey().equals(entry2.getKey())){//:this is the join condition.
 						ArrayList<String[]> joinedValues = new ArrayList<String[]>();
 						for (int j=0; j<entry1.getValue().size(); j++)
@@ -1003,10 +1027,12 @@ public class TSVManipulations {
 								joinedValues.add(aResultingRecord);
 							}//for k.
 						resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
-						
+						iter1.remove();
+						iter2.remove();
 					}//if.
 				}//for.
 			}//for.
+
 			String titles = t1Key + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t1NeededFields + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t2NeededFields;
 			saveTreeMapToTSVFile(outputPath+"\\"+outputTSV, resultingRecords, titles,
 					showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-3");

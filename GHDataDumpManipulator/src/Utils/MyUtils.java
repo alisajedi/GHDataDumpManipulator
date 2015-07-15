@@ -146,15 +146,14 @@ public class MyUtils {
 		return result;
 	}
 	//------------------------------------------------------------------------------------------------------------------------------------------------
-	public static String[] concatTwoStringArrays(String[] s1, String s2, String[] s3){
-		String[] result = new String[s1.length+1+s3.length];
+	public static String[] concatTwoStringArrays(String[] s1, String[] s2){
+		String[] result = new String[s1.length+s2.length];
 		int i;
 		for (i=0; i<s1.length; i++)
 			result[i] = s1[i];
-		result[s1.length]= s2;
-		int tempIndex =s1.length + 1; 
-		for (i=0; i<s3.length; i++)
-			result[tempIndex+i] = s3[i];
+		int tempIndex =s1.length; 
+		for (i=0; i<s2.length; i++)
+			result[tempIndex+i] = s2[i];
 		return result;
 	}//concatTwoStringArrays().
 }
