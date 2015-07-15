@@ -1,75 +1,12 @@
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.TreeMap;
-
 import Utils.Constants;
-import Utils.Constants.ConditionType;
-import Utils.Constants.FieldType;
-import Utils.Constants.LogicalOperand;
+import Utils.Constants.JoinType;
 import Utils.Constants.SortOrder;
-import Utils.FileConversionResult;
+import Utils.FileManipulationResult;
 import Utils.MyUtils;
 import Utils.TSVManipulations;
 
 public class AggregateInfluenceMetrics {
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	private static FileConversionResult runGroupBy_count_andSaveResultToTSV(String inputPath, String inputTSVFileName, String outputPath, String outputTSVFileName,  
-			String groupByField, int totalFieldsCount, String titleOfGroupByFieldInOutputFile, String titleOfCountedFieldForOutputFile, SortOrder sortOrder, 
-			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep) {
-		System.out.println("-----------------------------------");
-		System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Groupping by \"" + groupByField + "\" (in \"" + inputTSVFileName + "\"):");
-		System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
-		FileConversionResult result = new FileConversionResult();	
-
-		FileConversionResult[] fCRArray = new FileConversionResult[1]; 
-		fCRArray[0] = new FileConversionResult();//: this variable is for making a call-by-reference variable.
-		TreeMap<String, Long> usersAndTheirFollowers = TSVManipulations.groupBy_count_fromTSV(
-			inputPath+"\\"+inputTSVFileName, null, groupByField, sortOrder , totalFieldsCount, fCRArray, 
-			showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-1");
-		result = MyUtils.addFileConversionResults(result, fCRArray[0]);
-		
-		String[] titles = new String[]{titleOfGroupByFieldInOutputFile, titleOfCountedFieldForOutputFile};
-		fCRArray[0] = TSVManipulations.saveKeyAndValuesAsTSVFile(outputPath+"\\"+outputTSVFileName, usersAndTheirFollowers,  
-				totalFieldsCount, titles, showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-2");
-		result = MyUtils.addFileConversionResults(result, fCRArray[0]);
-		
-		System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
-		System.out.println("-----------------------------------");
-		result.processed = 1;
-		if (result.errors == 0)
-			result.DoneSuccessfully = 1;
-		return result;
-	}//convertAllFilseInFolderToTSV().
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	private static FileConversionResult runGroupBy_sum_andSaveResultToTSV(String inputPath, String inputTSVFileName, String outputPath, String outputTSVFileName,  
-			String groupByField, String summingField, int totalFieldsCount, String titleOfGroupByFieldInOutputFile, String titleOfSummedFieldForOutputFile, SortOrder sortOrder, 
-			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep) {
-		System.out.println("-----------------------------------");
-		System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Groupping by \"" + groupByField + "\" (in \"" + inputTSVFileName + "\"):");
-		System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
-		FileConversionResult result = new FileConversionResult();	
-
-		FileConversionResult[] fCRArray = new FileConversionResult[1]; 
-		fCRArray[0] = new FileConversionResult();//: this variable is for making a call-by-reference variable.
-		TreeMap<String, Long> usersAndTheirFollowers = TSVManipulations.groupBy_sum_fromTSV(
-			inputPath+"\\"+inputTSVFileName, null, groupByField, summingField, sortOrder , totalFieldsCount, fCRArray, 
-			showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-1");
-		result = MyUtils.addFileConversionResults(result, fCRArray[0]);
-		
-		String[] titles = new String[]{titleOfGroupByFieldInOutputFile, titleOfSummedFieldForOutputFile};
-		fCRArray[0] = TSVManipulations.saveKeyAndValuesAsTSVFile(outputPath+"\\"+outputTSVFileName, usersAndTheirFollowers,  
-				totalFieldsCount, titles, showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-2");
-		result = MyUtils.addFileConversionResults(result, fCRArray[0]);
-		
-		System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
-		System.out.println("-----------------------------------");
-		result.processed = 1;
-		if (result.errors == 0)
-			result.DoneSuccessfully = 1;
-		return result;
-	}//groupBy_sum().
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	private static void aggregateMetrics(String inputPath, String outputPath, 
@@ -77,38 +14,63 @@ public class AggregateInfluenceMetrics {
 		Date d1 = new Date();
 		System.out.println("-----------------------------------");
 		System.out.println("-----------------------------------");
-		FileConversionResult totalFCR = new FileConversionResult(), fCR;
+		FileManipulationResult totalFCR = new FileManipulationResult(), fCR;
 		
-		//1- Followers:
-		fCR = runGroupBy_count_andSaveResultToTSV(inputPath, "followers.tsv", outputPath, "followers.tsv", "userId", 2, "userId", "#OfFollowers", SortOrder.ASCENDING_INTEGER, indentationLevel, testOrReal, showProgressInterval, "1");
-		totalFCR = MyUtils.addFileConversionResults(totalFCR, fCR);
-	
-		//2- Watchers (total # of watchers of all projects of each developer):
-		//First, count the number of watchers for each project (and save it in "projectsAndTheirNumberOfWatchers.tsv"):
-		String projectsAndTheirNumberOfWatchersFileName = "projectsAndTheirNumberOfWatchers.tsv";
-		fCR = runGroupBy_count_andSaveResultToTSV(inputPath, "watchers.tsv", outputPath, projectsAndTheirNumberOfWatchersFileName, "repoId", 2, "projectId", "#ofWatchers", SortOrder.ASCENDING_INTEGER, indentationLevel, testOrReal, showProgressInterval, "2");
-		totalFCR = MyUtils.addFileConversionResults(totalFCR, fCR);
-		//Then, using this number of watchers, convert <projectId, userId> in "projects.tsv" to <#OfWatchers, userId> and save it in "projects_idReplacedByNumberOfWatchers-temporaryFile.tsv":
-		String temporaryProjectsFileIncludingNumberOfWatchersInsteadOfProjectId = "projects_idReplacedByNumberOfWatchers-temporaryFile.tsv";
-		fCR = TSVManipulations.replaceForeignKeyInTSVWithValueFromAnotherTSV(inputPath+"\\"+"projects.tsv", outputPath+"\\"+projectsAndTheirNumberOfWatchersFileName, 
-				outputPath+"\\"+temporaryProjectsFileIncludingNumberOfWatchersInsteadOfProjectId, "id", 4, "projectId", 2, "#ofWatchers", "#ofWatchers", showProgressInterval, testOrReal, "3");
-		totalFCR = MyUtils.addFileConversionResults(totalFCR, fCR);
-		//Now, using this #ofWatchers, get sum(numberOfWatchers) for each "userId" and save it as "usersAndNumberOfUsersWatchingTheirProjects.tsv":
-		fCR = runGroupBy_sum_andSaveResultToTSV(outputPath, temporaryProjectsFileIncludingNumberOfWatchersInsteadOfProjectId, outputPath, "usersAndNumberOfUsersWatchingTheirProjects.tsv", 
-				"ownerId", "#ofWatchers", 4, "userId", "sumOfNumberOfWatchersOfAllProjects", SortOrder.ASCENDING_INTEGER, 
-				indentationLevel, testOrReal, showProgressInterval, "4");
-		totalFCR = MyUtils.addFileConversionResults(totalFCR, fCR);
+//		//1- Followers:
+//		String tmp_justUsersWithFollowers = "temp-usersWithAtLeastOneFollower.tsv";
+//		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "followers.tsv", outputPath, tmp_justUsersWithFollowers, "userId", 2, "userId", "#ofFollowers", SortOrder.ASCENDING_INTEGER, indentationLevel, testOrReal, showProgressInterval, "1");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+//	
+//		//2- Watchers (total # of watchers of all projects of each developer):
+//		//First, count the number of watchers for each project (and save it in "temp-projects1-Watchers.tsv"):
+//		String temp_project1_watchers = "temp-projects1-Watchers.tsv", title1_projectId = "projectId", title2_numWatchers = "#ofWatchers";
+//		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "watchers.tsv", outputPath, temp_project1_watchers, "repoId", 2, title1_projectId, title2_numWatchers, SortOrder.ASCENDING_INTEGER, indentationLevel, testOrReal, showProgressInterval, "2");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+//		//Then, using this number of watchers, convert <projectId, userId> in "projects.tsv" to <#OfWatchers, userId> and save it in "temp-projects2-idReplacedByNumberOfWatchers.tsv":
+//		String temp_project2_idReplacedByNumberOfWatchers= "temp-projects2-idReplacedByNumberOfWatchers.tsv";
+//		fCR = TSVManipulations.replaceForeignKeyInTSVWithValueFromAnotherTSV(inputPath+"\\"+"projects.tsv", outputPath+"\\"+temp_project1_watchers, 
+//				outputPath+"\\"+temp_project2_idReplacedByNumberOfWatchers, "id", 4, title1_projectId, 2, title2_numWatchers, title2_numWatchers, showProgressInterval, indentationLevel, testOrReal, "3");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+//		//Now, using this #ofWatchers, get sum(numberOfWatchers) for each "userId" and save it as "usersAndNumberOfUsersWatchingTheirProjects.tsv":
+//		String numberOfWatchersFieldName = "#ofWatchersOfProjectsOfThisUser";
+//		String watchersOutputFileName = "usersAndNumberOfUsersWatchingTheirProjects.tsv";
+//		fCR = TSVManipulations.runGroupBy_sum_andSaveResultToTSV(outputPath, temp_project2_idReplacedByNumberOfWatchers, outputPath, watchersOutputFileName, 
+//				"ownerId", title2_numWatchers, 4, "userId", numberOfWatchersFieldName, SortOrder.ASCENDING_INTEGER, 
+//				indentationLevel, testOrReal, showProgressInterval, "4");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+//
+//		//3-Forks:
+//		//First, count the number of forks from each project (and save it in "temp-projects2-Forks.tsv"):
+//		String temp_project3_forks = "temp-projects3-Forks.tsv", title3_projectId = "projectId", title4_numWatchers = "#ofProjectsForkedFromThis";
+//		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "projects.tsv", outputPath, temp_project3_forks, "forkedFrom", 4, title3_projectId, title4_numWatchers, SortOrder.ASCENDING_INTEGER, indentationLevel, testOrReal, showProgressInterval, "5");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+//		//Then, using this number of forks, convert <projectId, userId> in "projects.tsv" to <#OfForks, userId> and save it in "temp-projects3-idReplacedByNumberOfForks.tsv":
+//		String temp_project4_idReplacedByNumberOfForks = "temp-projects3-idReplacedByNumberOfForks.tsv";
+//		fCR = TSVManipulations.replaceForeignKeyInTSVWithValueFromAnotherTSV(inputPath+"\\"+"projects.tsv", outputPath+"\\"+temp_project3_forks, 
+//				outputPath+"\\"+temp_project4_idReplacedByNumberOfForks, "id", 4, title3_projectId, 2, title4_numWatchers, title4_numWatchers, showProgressInterval, indentationLevel, testOrReal, "6");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+//		//Now, using this #ofWatchers, get sum(numberOfWatchers) for each "userId" and save it as "usersAndNumberOfUsersWatchingTheirProjects.tsv":
+//		fCR = TSVManipulations.runGroupBy_sum_andSaveResultToTSV(outputPath, temp_project4_idReplacedByNumberOfForks, outputPath, "usersAndNumberOfForksFromTheirProjects.tsv", 
+//				"ownerId", title4_numWatchers, 4, "userId", "#ofProjectsForkedFromProjectsOfThisUser", SortOrder.ASCENDING_INTEGER, 
+//				indentationLevel, testOrReal, showProgressInterval, "7");
+//		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
 
-		//3-Forks:
-		fCR = runGroupBy_count_andSaveResultToTSV(inputPath, "projects.tsv", outputPath, "projectsForked.tsv", "forkedFrom", 4, "projectId", "numberProjectsForkedFromThisProject", SortOrder.ASCENDING_INTEGER, indentationLevel, testOrReal, showProgressInterval, "5");
-		totalFCR = MyUtils.addFileConversionResults(totalFCR, fCR);
-		if (totalFCR.errors != 0)
-			System.out.println(5);
-
+		//4-Merging the followers with Watchers:
+		String tmp_justUsersWithFollowers = "temp-usersWithAtLeastOneFollower.tsv";
+		String watchersOutputFileName = "usersAndNumberOfUsersWatchingTheirProjects.tsv";
+		String numberOfWatchersFieldName = "#ofWatchersOfProjectsOfThisUser";
+		fCR = TSVManipulations.joinTwoTSV(outputPath,tmp_justUsersWithFollowers, outputPath, watchersOutputFileName, outputPath, "join.tsv", 
+				"userId", "userId", JoinType.FULL_JOIN, 
+				"#ofFollowers", 
+				numberOfWatchersFieldName,
+				SortOrder.ASCENDING_INTEGER, SortOrder.ASCENDING_INTEGER, 
+				indentationLevel, testOrReal, showProgressInterval, "8");
+		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
+		
 		//Summary:
 		System.out.println("-----------------------------------");
 		System.out.println(totalFCR.processed + " files processed.");
-		System.out.println(totalFCR.DoneSuccessfully + " files summaried / converted to TSV.");
+		System.out.println(totalFCR.DoneSuccessfully + " files summaried / converted to TSV successfully.");
 		if (totalFCR.errors == 0){
 			System.out.println("Done successfully!");
 		}

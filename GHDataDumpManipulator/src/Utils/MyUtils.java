@@ -138,11 +138,23 @@ public class MyUtils {
 		return result;
 	}//runLogicalComparison().
 	//------------------------------------------------------------------------------------------------------------------------------------------------
-	public static FileConversionResult addFileConversionResults(FileConversionResult fCR1, FileConversionResult fCR2){
-		FileConversionResult result = new FileConversionResult();
+	public static FileManipulationResult addFileManipulationResults(FileManipulationResult fCR1, FileManipulationResult fCR2){
+		FileManipulationResult result = new FileManipulationResult();
 		result.DoneSuccessfully = fCR1.DoneSuccessfully + fCR2.DoneSuccessfully;
 		result.processed = fCR1.processed + fCR2.processed;
 		result.errors = fCR1.errors + fCR2.errors;
 		return result;
 	}
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static String[] concatTwoStringArrays(String[] s1, String s2, String[] s3){
+		String[] result = new String[s1.length+1+s3.length];
+		int i;
+		for (i=0; i<s1.length; i++)
+			result[i] = s1[i];
+		result[s1.length]= s2;
+		int tempIndex =s1.length + 1; 
+		for (i=0; i<s3.length; i++)
+			result[tempIndex+i] = s3[i];
+		return result;
+	}//concatTwoStringArrays().
 }

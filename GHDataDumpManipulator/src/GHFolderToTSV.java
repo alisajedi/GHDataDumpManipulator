@@ -7,7 +7,7 @@ import java.util.Date;
 
 import Utils.Constants;
 import Utils.FieldAndType;
-import Utils.FileConversionResult;
+import Utils.FileManipulationResult;
 import Utils.MyUtils;
 
 //import JOptionPane.showMessageDialog;
@@ -15,8 +15,8 @@ import Utils.MyUtils;
 public class GHFolderToTSV {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	private static FileConversionResult aggregateResults(FileConversionResult fcr1, FileConversionResult fcr2){
-		FileConversionResult result = new FileConversionResult ();
+	private static FileManipulationResult aggregateResults(FileManipulationResult fcr1, FileManipulationResult fcr2){
+		FileManipulationResult result = new FileManipulationResult ();
 		result.processed = fcr1.processed + fcr2.processed;
 		result.DoneSuccessfully = fcr1.DoneSuccessfully + fcr2.DoneSuccessfully;
 		result.errors = fcr1.errors + fcr2.errors;
@@ -72,9 +72,9 @@ public class GHFolderToTSV {
 	}
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	private static FileConversionResult convertToTSV(File inputFile, String outputPath, int fileCounter, int indentationLevel, 
+	private static FileManipulationResult convertToTSV(File inputFile, String outputPath, int fileCounter, int indentationLevel, 
 			int showProgressInterval){
-		FileConversionResult result = new FileConversionResult();
+		FileManipulationResult result = new FileManipulationResult();
 		String outputPathAndFileName = outputPath + "\\" + inputFile.getName();
 		outputPathAndFileName = MyUtils.removeFromEnd(outputPathAndFileName, 3) + "tsv";
 		String tableName = inputFile.getName().substring(0, inputFile.getName().indexOf(".sql"));
@@ -183,7 +183,7 @@ public class GHFolderToTSV {
 		Date d1 = new Date();
 		File[] filesList = inputPath.listFiles();
         int i = 1;
-        FileConversionResult fcr = new FileConversionResult();
+        FileManipulationResult fcr = new FileManipulationResult();
 		for(File f : filesList){
         	if(f.isDirectory())
         		convertAllFilseInFolderToTSV(f, outputPath, showProgressInterval);

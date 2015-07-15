@@ -16,6 +16,7 @@ import Utils.Constants.FieldType;
 //import java.util.regex.Pattern;
 import Utils.Constants.LogicalOperand;
 import Utils.Constants.ConditionType;
+import Utils.Constants.SortOrder;
 
 //import Constants.SortOrder;
 
@@ -78,14 +79,14 @@ public class TSVManipulations {
 			LogicalOperand logicalOperand, 
 			int field1Number, ConditionType condition1Type, String field1Value, FieldType field1Type, 
 			int field2Number, ConditionType condition2Type, String field2Value, FieldType field2Type, 
-			int showProgressInterval,
+			int showProgressInterval, int indentationLevel, 
 			long testOrReal, String writeMessageStep){//This method reads TSV lines into HashMap. The key is a unique field and value is a String[] containing all the values of that row. 
 		TreeMap<String, String[]> tsvRecordsHashMap = new TreeMap<String, String[]>();
 		try{ 
 			BufferedReader br;
 			//Reading posts and adding <repoId, totalNumberOfMembers> in a hashMap:
 			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
-			System.out.println(writeMessageStep + "- Parsing " + inputPathAndFileName + ":");
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Parsing " + inputPathAndFileName + ":");
 			System.out.println("    Started ...");
 			int error1 = 0, error2 = 0, unmatchedRecords = 0;;
 			int i=0, matchedRec = 0;
@@ -336,7 +337,7 @@ public class TSVManipulations {
 			Constants.LogicalOperand logicalOperand, 
 			int field1Number, ConditionType condition1Type, String field1Value, FieldType field1Type, 
 			int field2Number, ConditionType condition2Type, String field2Value, FieldType field2Type, 
-			int showProgressInterval, 
+			int showProgressInterval, int indentationLevel, 
 			long testOrReal, String writeMessageStep){//This method reads TSV lines into HashMap. 
 		//The key is a non-unique field (#keyfieldNumber) and value is an ArrayList<String[]> containing all the values of all the rows that have the same keyFieldNumber. Values of each row is stored in a String[].
 		//		TreeMap<String, ArrayList<String[]>> tsvRecordsHashMap = new TreeMap<String, ArrayList<String[]>>();
@@ -383,7 +384,7 @@ public class TSVManipulations {
 			BufferedReader br;
 			//Reading posts and adding <repoId, totalNumberOfMembers> in a hashMap:
 			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
-			System.out.println(writeMessageStep + "- Parsing " + inputPathAndFileName + ":");
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Parsing " + inputPathAndFileName + ":");
 			System.out.println("    Started ...");
 			int error = 0, unmatchedRecords = 0;
 			String[] fields;
@@ -444,26 +445,26 @@ public class TSVManipulations {
 					if (i >= testOrReal)
 						break;
 				if (i % showProgressInterval == 0)
-					System.out.println("        " +  Constants.integerFormatter.format(i));
+					System.out.println(MyUtils.indent(indentationLevel) + Constants.integerFormatter.format(i));
 			}//while ((s=br....
 
 			if (error>0)
-				System.out.println("        Error) Number of records with !=" + totalFieldsCount + " fields: " + error);
+				System.out.println(MyUtils.indent(indentationLevel) + "Error) Number of records with !=" + totalFieldsCount + " fields: " + error);
 
 			if (equalObjectsFound>0)
-				System.out.println("        Hint) Number of repeated TSV records (ignored): " + equalObjectsFound);
+				System.out.println(MyUtils.indent(indentationLevel) + "Hint) Number of repeated TSV records (ignored): " + equalObjectsFound);
 
 			if (logicalOperand == LogicalOperand.NO_CONDITION)
-				System.out.println("        Number of records read: " + Constants.integerFormatter.format(matchedRec));
+				System.out.println(MyUtils.indent(indentationLevel) + "Number of records read: " + Constants.integerFormatter.format(matchedRec));
 			else
 			{
-				System.out.println("        Number of records read (matched with the provided conditions): " + Constants.integerFormatter.format(matchedRec));
+				System.out.println(MyUtils.indent(indentationLevel) + "Number of records read (matched with the provided conditions): " + Constants.integerFormatter.format(matchedRec));
 				if (unmatchedRecords == 0)
-					System.out.println("        :-) No unmatched records with the conditions provided.");
+					System.out.println(MyUtils.indent(indentationLevel) + ":-) No unmatched records with the conditions provided.");
 				else
-					System.out.println("        Number of ignored records (unmatched with the provided conditions): " + Constants.integerFormatter.format(unmatchedRecords));
+					System.out.println(MyUtils.indent(indentationLevel) + "Number of ignored records (unmatched with the provided conditions): " + Constants.integerFormatter.format(unmatchedRecords));
 			}//if (cond....
-			System.out.println("    Finished.");
+			System.out.println(MyUtils.indent(indentationLevel) + "Finished.");
 			System.out.println();
 			br.close();
 		}catch (Exception e){
@@ -472,11 +473,11 @@ public class TSVManipulations {
 		return tsvRecordsTreeMap;
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
-	public static FileConversionResult saveKeyAndValuesAsTSVFile(String outputPathAndFileName, TreeMap<String, Long> counts, 
+	public static FileManipulationResult saveKeyAndValuesAsTSVFile(String outputPathAndFileName, TreeMap<String, Long> counts, 
 			int totalFieldsCount, String[] titles,
 			int showProgressInterval, int indentationLevel,
 			long testOrReal, String writeMessageStep){
-		FileConversionResult fCR = new FileConversionResult();
+		FileManipulationResult fCR = new FileManipulationResult();
 		try{
 			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Writing file \"" + outputPathAndFileName + "\"");
 			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
@@ -505,8 +506,47 @@ public class TSVManipulations {
 	}//saveCountsAsTSVFile().
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------------------------------------------
+	public static FileManipulationResult saveTreeMapToTSVFile(String outputPathAndFileName, TreeMap<String, ArrayList<String[]>> tm, 
+			String titles,
+			int showProgressInterval, int indentationLevel, long testOrReal, String writeMessageStep){
+		FileManipulationResult fCR = new FileManipulationResult();
+		try{
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Writing file \"" + outputPathAndFileName + "\"");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
+			int i = 0;
+			FileWriter writer = new FileWriter(outputPathAndFileName);
+			writer.append(titles + "\n");
+			for(Map.Entry<String,ArrayList<String[]>> entry : tm.entrySet()) {
+				for (int j=0; j<entry.getValue().size(); j++){
+					String[] s = entry.getValue().get(j);
+					String aLine = "";
+					if (s.length>0){
+						aLine = s[0];
+						for (int k=1; k<s.length; k++)
+							aLine = aLine + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + s[k];
+					}
+					writer.append(entry.getKey() + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + aLine + "\n");
+				}//for.
+				i++;
+				if (i % showProgressInterval == 0)
+					System.out.println(MyUtils.indent(indentationLevel+1) +  Constants.integerFormatter.format(i));
+			}
+			writer.flush();
+			writer.close();
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records written: " + Constants.integerFormatter.format(i) + ".");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Finished.");
+			fCR.DoneSuccessfully = 1;
+			return fCR;
+		}catch (Exception e){
+			e.printStackTrace();
+			fCR.errors = 1;
+			return fCR;
+		}
+	}//saveCountsAsTSVFile().
+	//--------------------------------------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------------------------------------------
 	public static TreeMap<String, Long> groupBy_count_fromTSV(String inputPathAndFileName, Set<String> keySetToCheckExistenceOfKeyField, 
-			String keyField, Constants.SortOrder sortOrder, int totalFieldsCount, FileConversionResult[] fCRArray, 
+			String keyField, Constants.SortOrder sortOrder, int totalFieldsCount, FileManipulationResult[] fCRArray, 
 			int showProgressInterval, int indentationLevel,
 			long testOrReal, String writeMessageStep){//This method reads TSV lines and counts the records for each key (something like getting count(x) after group by key in SQL). 
 		TreeMap<String, Long> result = new TreeMap<String, Long>();
@@ -612,7 +652,7 @@ public class TSVManipulations {
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	public static TreeMap<String, Long> groupBy_sum_fromTSV(String inputPathAndFileName, Set<String> keySetToCheckExistenceOfKeyField, 
-			String keyField, String summingField, Constants.SortOrder sortOrder, int totalFieldsCount, FileConversionResult[] fCRArray, 
+			String keyField, String summingField, Constants.SortOrder sortOrder, int totalFieldsCount, FileManipulationResult[] fCRArray, 
 			int showProgressInterval, int indentationLevel,
 			long testOrReal, String writeMessageStep){//This method reads TSV lines and counts the records for each key (something like getting count(x) after group by key in SQL). 
 		TreeMap<String, Long> result = new TreeMap<String, Long>();
@@ -721,18 +761,19 @@ public class TSVManipulations {
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//This file replaces a foreign key (e.g., userId) with its value from another TSV (provided that the relation is 1:1 or 1:n)
-	public static FileConversionResult replaceForeignKeyInTSVWithValueFromAnotherTSV(String foreignKeyInputPathAndFileName,  
+	public static FileManipulationResult replaceForeignKeyInTSVWithValueFromAnotherTSV(String foreignKeyInputPathAndFileName,  
 			String primaryKeyInputPathAndFileName, 
 			String outputPathAndFileName, 
 			String fKField, int foreignKeyTotalFieldsNumber,
 			String pKField, int primaryKeyTotalFieldsNumber, 
 			String pKSubstituteField, //this is the field that is written instead of foreign key.
 			String substituteNewTitle,//under this title.
-			int showProgressInterval,
+			int showProgressInterval, int indentationLevel,
 			long testOrReal, String writeMessageStep
 			){
-		FileConversionResult fCR = new FileConversionResult();
+		FileManipulationResult fCR = new FileManipulationResult();
 		try{ 
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Foreign Key replacement (\"" + fKField + "\") in \"" + foreignKeyInputPathAndFileName + "\"):");
 			int error = 0;
 			String[] titles;
 			int i=0, PrimaryKeyFieldNumber = Constants.ERROR, foreignKeyFieldNumber = Constants.ERROR, primaryKeySubstituteFieldNumber = Constants.ERROR;
@@ -750,10 +791,10 @@ public class TSVManipulations {
 			}//for.
 			br.close();
 			
-			TreeMap<String, String[]> primaryKeyRecords = TSVManipulations.readUniqueKeyAndItsValueFromTSV(
-					primaryKeyInputPathAndFileName, null, PrimaryKeyFieldNumber, primaryKeyTotalFieldsNumber, "ALL", LogicalOperand.NO_CONDITION, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 100000, testOrReal, "1");
-			//TreeMap<String, String[]> foreignKeyRecords = TSVManipulations.readUniqueKeyAndItsValueFromTSV(foreignKeyInputTSVPath, foreignKeyInputTSVFile, ForeignKeyFieldNumber, foreignKeyTotalFieldsNumber, ConditionType.NO_CONDITION, 0, "", 0, "", 100000, testOrReal, 2);
-			System.out.println("2- Producing output (foreign key replaced by value) ...");
+			TreeMap<String, String[]> primaryKeyRecords = readUniqueKeyAndItsValueFromTSV(
+					primaryKeyInputPathAndFileName, null, PrimaryKeyFieldNumber, primaryKeyTotalFieldsNumber, "ALL", LogicalOperand.NO_CONDITION, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 100000, indentationLevel+1, testOrReal, writeMessageStep+"-1");
+			//TreeMap<String, String[]> foreignKeyRecords = readUniqueKeyAndItsValueFromTSV(foreignKeyInputTSVPath, foreignKeyInputTSVFile, ForeignKeyFieldNumber, foreignKeyTotalFieldsNumber, ConditionType.NO_CONDITION, 0, "", 0, "", 100000, testOrReal, 2);
+			System.out.println(MyUtils.indent(indentationLevel+1) + writeMessageStep+"-2- Producing output (foreign key replaced by value) ...");
 			System.out.println("    Started ...");
 			String[] theFKRecord, aPKRecord;
 
@@ -805,7 +846,7 @@ public class TSVManipulations {
 			}//for (Stri....
 			writer.flush();writer.close();
 			br.close();
-			System.out.println("        " + Constants.integerFormatter.format(i) + " records have been read.");
+			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records read: " + Constants.integerFormatter.format(i));
 			fCR.processed = 1;
 			if (error>0){
 				System.out.println("        Error) Number of FK records with !=" + foreignKeyTotalFieldsNumber + " fields: " + error);
@@ -822,6 +863,164 @@ public class TSVManipulations {
 		}
 	}//replaceForeignKeyInTSVWithValueFromAnotherTSV().
 	//--------------------------------------------------------------------------------------------------------------------------------------------
+	public static FileManipulationResult runGroupBy_count_andSaveResultToTSV(String inputPath, String inputTSVFileName, String outputPath, String outputTSVFileName,  
+			String groupByField, int totalFieldsCount, String titleOfGroupByFieldInOutputFile, String titleOfCountedFieldForOutputFile, SortOrder sortOrder, 
+			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep) {
+		System.out.println("-----------------------------------");
+		System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Groupping by \"" + groupByField + "\" (in \"" + inputTSVFileName + "\"):");
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
+		FileManipulationResult result = new FileManipulationResult();	
+
+		FileManipulationResult[] fCRArray = new FileManipulationResult[1]; 
+		fCRArray[0] = new FileManipulationResult();//: this variable is for making a call-by-reference variable.
+		TreeMap<String, Long> usersAndTheirFollowers = groupBy_count_fromTSV(
+			inputPath+"\\"+inputTSVFileName, null, groupByField, sortOrder , totalFieldsCount, fCRArray, 
+			showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-1");
+		result = MyUtils.addFileManipulationResults(result, fCRArray[0]);
+		
+		String[] titles = new String[]{titleOfGroupByFieldInOutputFile, titleOfCountedFieldForOutputFile};
+		fCRArray[0] = saveKeyAndValuesAsTSVFile(outputPath+"\\"+outputTSVFileName, usersAndTheirFollowers,  
+				totalFieldsCount, titles, showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-2");
+		result = MyUtils.addFileManipulationResults(result, fCRArray[0]);
+		
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
+		System.out.println("-----------------------------------");
+		result.processed = 1;
+		if (result.errors == 0)
+			result.DoneSuccessfully = 1;
+		return result;
+	}//convertAllFilseInFolderToTSV().
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	public static FileManipulationResult runGroupBy_sum_andSaveResultToTSV(String inputPath, String inputTSVFileName, String outputPath, String outputTSVFileName,  
+			String groupByField, String summingField, int totalFieldsCount, String titleOfGroupByFieldInOutputFile, String titleOfSummedFieldForOutputFile, SortOrder sortOrder, 
+			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep) {
+		System.out.println("-----------------------------------");
+		System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Groupping by \"" + groupByField + "\" (in \"" + inputTSVFileName + "\"):");
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
+		FileManipulationResult result = new FileManipulationResult();	
+
+		FileManipulationResult[] fCRArray = new FileManipulationResult[1]; 
+		fCRArray[0] = new FileManipulationResult();//: this variable is for making a call-by-reference variable.
+		TreeMap<String, Long> usersAndTheirFollowers = groupBy_sum_fromTSV(
+			inputPath+"\\"+inputTSVFileName, null, groupByField, summingField, sortOrder , totalFieldsCount, fCRArray, 
+			showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-1");
+		result = MyUtils.addFileManipulationResults(result, fCRArray[0]);
+		
+		String[] titles = new String[]{titleOfGroupByFieldInOutputFile, titleOfSummedFieldForOutputFile};
+		fCRArray[0] = saveKeyAndValuesAsTSVFile(outputPath+"\\"+outputTSVFileName, usersAndTheirFollowers,  
+				totalFieldsCount, titles, showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-2");
+		result = MyUtils.addFileManipulationResults(result, fCRArray[0]);
+		
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
+		System.out.println("-----------------------------------");
+		result.processed = 1;
+		if (result.errors == 0)
+			result.DoneSuccessfully = 1;
+		return result;
+	}//groupBy_sum().
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//T1Fields and T2Fields are lists of fields separated by Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE (i.e. "\t")
+	public static FileManipulationResult joinTwoTSV(String inputPath1, String inputTSV1, String inputPath2, String inputTSV2, String outputPath, String outputTSV, 
+			String t1Key, String t2Key, Constants.JoinType joinType, String t1NeededFields, String t2NeededFields, 
+			Constants.SortOrder t1KeySortOrder, Constants.SortOrder t2KeySortOrder, //:these two fields are for sorting the records while processing. If the key fields are "integer" then it's better to select ASCENDING_INTEGER (otherwise DEFAULT_FOR_STRING).
+			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep
+			){//Join condition: inputTSV1.T1Key = inputTSV2.T2Key
+		FileManipulationResult result = new FileManipulationResult();	
+		try{ 
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Joining (\"" + inputTSV1 + "\" and \"" + inputTSV2 + "\"):");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
+			int i=0, t1KeyNumber = Constants.ERROR, t2KeyNumber = Constants.ERROR;
+			String s;
+			//Determining needed fields from TSV1: 
+			BufferedReader br1;
+			br1 = new BufferedReader(new FileReader(inputPath1 + "\\" + inputTSV1)); 
+			s = br1.readLine();
+			String[] tSVTitles1 = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			String[] neededTitles1 = t1NeededFields.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			String neededFieldNumbers1 = "";
+			for (int j=0; j<neededTitles1.length; j++)//:iterate over all needed titles from TSV1.
+				for (int k=0; k< tSVTitles1.length; k++){//:iterate over all titles in TSV1.
+					if (tSVTitles1[k].equals(neededTitles1[j]))
+						if (neededFieldNumbers1.equals(""))
+							neededFieldNumbers1 = Integer.toString(k);
+						else
+							neededFieldNumbers1 = neededFieldNumbers1 + "$" + k;//:as a field separator (to prepare a string containing all needed field numbers separated by dollar).
+					if (tSVTitles1[k].equals(t1Key))
+						t1KeyNumber = k;
+			}//for.
+			br1.close();
+			if (t1KeyNumber == Constants.ERROR)
+				result.errors = 1;
+			//Reading needed fields from TSV1:
+			TreeMap<String, ArrayList<String[]>> t1Records = readNonUniqueKeyAndItsValueFromTSV(
+					inputPath1 + "\\" + inputTSV1, null, t1KeyNumber, t1KeySortOrder, tSVTitles1.length, neededFieldNumbers1, 
+					LogicalOperand.NO_CONDITION, 
+					0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 
+					0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 
+					showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-1");
+
+			//Determining needed fields from TSV2: 
+			BufferedReader br2;
+			br2 = new BufferedReader(new FileReader(inputPath2 + "\\" + inputTSV2)); 
+			s = br2.readLine();
+			String[] tSVTitles2 = s.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			String[] neededTitles2 = t2NeededFields.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			String neededFieldNumbers2 = "";
+			for (int j=0; j<neededTitles2.length; j++)//:iterate over all needed titles from TSV1.
+				for (int k=0; k< tSVTitles2.length; k++){//:iterate over all titles in TSV1.
+					if (tSVTitles2[k].equals(neededTitles2[j]))
+						if (neededFieldNumbers2.equals(""))
+							neededFieldNumbers2 = Integer.toString(k);
+						else
+							neededFieldNumbers2 = neededFieldNumbers2 + "$" + k;//:as a field separator (to prepare a string containing all needed field numbers separated by dollar).
+					if (tSVTitles2[k].equals(t2Key))
+						t2KeyNumber = k;
+			}//for.
+			br2.close();
+			if (t2KeyNumber == Constants.ERROR)
+				result.errors = 1;
+			//Reading needed fields from TSV1:
+			TreeMap<String, ArrayList<String[]>> t2Records = readNonUniqueKeyAndItsValueFromTSV(
+					inputPath2 + "\\" + inputTSV2, null, t2KeyNumber, t2KeySortOrder, tSVTitles2.length, neededFieldNumbers2, 
+					LogicalOperand.NO_CONDITION, 
+					0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 
+					0, ConditionType.NOTHING, "", FieldType.NOT_IMPORTANT, 
+					showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-2");
+
+			//Now joining T1Records and T2Records:
+			TreeMap<String, ArrayList<String[]>> resultingRecords = new TreeMap<String, ArrayList<String[]>>();
+			for(Map.Entry<String, ArrayList<String[]>> entry1: t1Records.entrySet()){
+				for(Map.Entry<String, ArrayList<String[]>> entry2: t2Records.entrySet()){
+					if (entry1.getKey().equals(entry2.getKey())){//:this is join condition.
+						ArrayList<String[]> joinedValues = new ArrayList<String[]>();
+						for (int j=0; j<entry1.getValue().size(); j++)
+							for (int k=0; k<entry2.getValue().size(); k++){
+								//Making records of <entry1.getKey(), entry1Values[j], entry2.getKey(), entry2Values[k]>
+								String[] aResultingRecord = MyUtils.concatTwoStringArrays(entry1.getValue().get(j), entry2.getKey(), entry2.getValue().get(k));
+								joinedValues.add(aResultingRecord);
+							}//for k.
+						resultingRecords.put(entry1.getKey(), joinedValues);
+					}//if.
+				}//for.
+			}//for.
+			saveTreeMapToTSVFile(outputPath+"\\"+outputTSV, resultingRecords, t1NeededFields+Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE+t2NeededFields,
+					showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-3");
+			
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
+			result.processed=1;
+			result.DoneSuccessfully = 1;
+			return result;
+		}catch(Exception e){
+			e.printStackTrace();
+			result.errors = 1;
+			return result;
+		}
+	}//joinTwoTSV().
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------------------------------------------

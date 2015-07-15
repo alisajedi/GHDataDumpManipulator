@@ -268,6 +268,10 @@ public class Constants {
 		EQUALS, NOT_EQUALS, NOTHING, GREATER_OR_EQUAL
 	}
 	
+	public enum JoinType{
+		INNER_JOIN, LEFT_JOIN, RIGHT_JOIN, FULL_JOIN
+	}
+	
 	public static void main(String[] args) {
 		String s = "abcdeababcdecdejhgabcde";
 		System.out.println(s);
