@@ -990,22 +990,25 @@ public class TSVManipulations {
 					showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-2");
 
 			//Now joining T1Records and T2Records:
+			//inner join:
 			TreeMap<String, ArrayList<String[]>> resultingRecords = new TreeMap<String, ArrayList<String[]>>();
 			for(Map.Entry<String, ArrayList<String[]>> entry1: t1Records.entrySet()){
 				for(Map.Entry<String, ArrayList<String[]>> entry2: t2Records.entrySet()){
-					if (entry1.getKey().equals(entry2.getKey())){//:this is join condition.
+					if (entry1.getKey().equals(entry2.getKey())){//:this is the join condition.
 						ArrayList<String[]> joinedValues = new ArrayList<String[]>();
 						for (int j=0; j<entry1.getValue().size(); j++)
 							for (int k=0; k<entry2.getValue().size(); k++){
-								//Making records of <entry1.getKey(), entry1Values[j], entry2.getKey(), entry2Values[k]>
-								String[] aResultingRecord = MyUtils.concatTwoStringArrays(entry1.getValue().get(j), entry2.getKey(), entry2.getValue().get(k));
+								//Making records of <entry1Values[j], entry2Values[k]>
+								String[] aResultingRecord = MyUtils.concatTwoStringArrays(entry1.getValue().get(j), entry2.getValue().get(k));
 								joinedValues.add(aResultingRecord);
 							}//for k.
-						resultingRecords.put(entry1.getKey(), joinedValues);
+						resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
+						
 					}//if.
 				}//for.
 			}//for.
-			saveTreeMapToTSVFile(outputPath+"\\"+outputTSV, resultingRecords, t1NeededFields+Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE+t2NeededFields,
+			String titles = t1Key + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t1NeededFields + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t2NeededFields;
+			saveTreeMapToTSVFile(outputPath+"\\"+outputTSV, resultingRecords, titles,
 					showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-3");
 			
 			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
