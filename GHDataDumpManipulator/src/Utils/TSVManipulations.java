@@ -39,7 +39,7 @@ public class TSVManipulations {
 			//Reading posts and adding <repoId, totalNumberOfMembers> in a hashMap:
 			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
 			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Parsing " + inputPathAndFileName + ":");
-			System.out.println(MyUtils.indent(indentationLevel) + "Started ...");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
 			int error1 = 0, error2 = 0, unmatchedRecords = 0;;
 			int i=0, matchedRec = 0;
 			String s, keyField;
@@ -77,23 +77,23 @@ public class TSVManipulations {
 					if (i >= testOrReal)
 						break;
 				if (i % showProgressInterval == 0)
-					System.out.println(MyUtils.indent(indentationLevel) + Constants.integerFormatter.format(i));
+					System.out.println(MyUtils.indent(indentationLevel+1) + Constants.integerFormatter.format(i));
 			}//while ((s=br....
 			if (error1>0)
-				System.out.println(MyUtils.indent(indentationLevel) + "Error) Number of records with !=" + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error1));
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with !=" + totalFieldsCount + " fields: " + Constants.integerFormatter.format(error1));
 			if (error2>0)
-				System.out.println(MyUtils.indent(indentationLevel) + "Error) Number of records with repeated keyField: " + Constants.integerFormatter.format(error2));
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with repeated keyField: " + Constants.integerFormatter.format(error2));
 
 			if (logicalOperand == LogicalOperand.NO_CONDITION)
-				System.out.println(MyUtils.indent(indentationLevel) + "Number of records read: " + Constants.integerFormatter.format(matchedRec));
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read: " + Constants.integerFormatter.format(matchedRec));
 			else{
-				System.out.println(MyUtils.indent(indentationLevel) + "Number of records read (matched with the provided conditions): " + Constants.integerFormatter.format(matchedRec));
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read (matched with the provided conditions): " + Constants.integerFormatter.format(matchedRec));
 				if (unmatchedRecords == 0)
-					System.out.println(MyUtils.indent(indentationLevel) + ":-) No unmatched records with the conditions provided.");
+					System.out.println(MyUtils.indent(indentationLevel+1) + ":-) No unmatched records with the conditions provided.");
 				else
-					System.out.println(MyUtils.indent(indentationLevel) + "Number of ignored records (unmatched with the provided conditions): " + Constants.integerFormatter.format(unmatchedRecords));
+					System.out.println(MyUtils.indent(indentationLevel+1) + "Number of ignored records (unmatched with the provided conditions): " + Constants.integerFormatter.format(unmatchedRecords));
 			}//if (cond....
-			System.out.println(MyUtils.indent(indentationLevel) + "Finished.");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
 //			System.out.println();
 			br.close();
 		}catch (Exception e){
@@ -350,7 +350,7 @@ public class TSVManipulations {
 			//Reading posts and adding <repoId, totalNumberOfMembers> in a hashMap:
 			br = new BufferedReader(new FileReader(inputPathAndFileName)); 
 			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Parsing " + inputPathAndFileName + ":");
-			System.out.println(MyUtils.indent(indentationLevel) + "Started ...");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
 			int error = 0, unmatchedRecords = 0;
 			String[] fields;
 			boolean isNew, recordShouldBeRead;
@@ -410,26 +410,26 @@ public class TSVManipulations {
 					if (i >= testOrReal)
 						break;
 				if (i % showProgressInterval == 0)
-					System.out.println(MyUtils.indent(indentationLevel) + Constants.integerFormatter.format(i));
+					System.out.println(MyUtils.indent(indentationLevel+1) + Constants.integerFormatter.format(i));
 			}//while ((s=br....
 
 			if (error>0)
-				System.out.println(MyUtils.indent(indentationLevel) + "Error) Number of records with !=" + totalFieldsCount + " fields: " + error);
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Error) Number of records with !=" + totalFieldsCount + " fields: " + error);
 
 			if (equalObjectsFound>0)
-				System.out.println(MyUtils.indent(indentationLevel) + "Hint) Number of repeated TSV records (ignored): " + equalObjectsFound);
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Hint) Number of repeated TSV records (ignored): " + equalObjectsFound);
 
 			if (logicalOperand == LogicalOperand.NO_CONDITION)
-				System.out.println(MyUtils.indent(indentationLevel) + "Number of records read: " + Constants.integerFormatter.format(matchedRec));
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read: " + Constants.integerFormatter.format(matchedRec));
 			else
 			{
-				System.out.println(MyUtils.indent(indentationLevel) + "Number of records read (matched with the provided conditions): " + Constants.integerFormatter.format(matchedRec));
+				System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records read (matched with the provided conditions): " + Constants.integerFormatter.format(matchedRec));
 				if (unmatchedRecords == 0)
-					System.out.println(MyUtils.indent(indentationLevel) + ":-) No unmatched records with the conditions provided.");
+					System.out.println(MyUtils.indent(indentationLevel+1) + ":-) No unmatched records with the conditions provided.");
 				else
-					System.out.println(MyUtils.indent(indentationLevel) + "Number of ignored records (unmatched with the provided conditions): " + Constants.integerFormatter.format(unmatchedRecords));
+					System.out.println(MyUtils.indent(indentationLevel+1) + "Number of ignored records (unmatched with the provided conditions): " + Constants.integerFormatter.format(unmatchedRecords));
 			}//if (cond....
-			System.out.println(MyUtils.indent(indentationLevel) + "Finished.");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
 			br.close();
 		}catch (Exception e){
 			e.printStackTrace();
@@ -482,7 +482,7 @@ public class TSVManipulations {
 		FileManipulationResult fCR = new FileManipulationResult();
 		try{
 			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Writing file \"" + outputPathAndFileName + "\"");
-			System.out.println(MyUtils.indent(indentationLevel) +  "Started ...");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Started ...");
 			int i = 0;
 			FileWriter writer = new FileWriter(outputPathAndFileName);
 			writer.append(titles + "\n");
@@ -503,8 +503,8 @@ public class TSVManipulations {
 			}
 			writer.flush();
 			writer.close();
-			System.out.println(MyUtils.indent(indentationLevel) + "Number of records written: " + Constants.integerFormatter.format(i) + ".");
-			System.out.println(MyUtils.indent(indentationLevel) +  "Finished.");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Number of records written: " + Constants.integerFormatter.format(i) + ".");
+			System.out.println(MyUtils.indent(indentationLevel+1) +  "Finished.");
 			fCR.DoneSuccessfully = 1;
 		}catch (Exception e){
 			e.printStackTrace();
@@ -752,6 +752,7 @@ public class TSVManipulations {
 		FileManipulationResult fCR = new FileManipulationResult();
 		try{ 
 			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Foreign Key replacement (\"" + fKField + "\") in \"" + foreignKeyInputPathAndFileName + "\"):");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
 			int error = 0;
 			String[] titles;
 			int i=0, PrimaryKeyFieldNumber = Constants.ERROR, foreignKeyFieldNumber = Constants.ERROR, primaryKeySubstituteFieldNumber = Constants.ERROR;
@@ -775,7 +776,7 @@ public class TSVManipulations {
 					false, showProgressInterval, indentationLevel+1, testOrReal, writeMessageStep+"-1");
 			//TreeMap<String, String[]> foreignKeyRecords = readUniqueKeyAndItsValueFromTSV(foreignKeyInputTSVPath, foreignKeyInputTSVFile, ForeignKeyFieldNumber, foreignKeyTotalFieldsNumber, ConditionType.NO_CONDITION, 0, "", 0, "", 100000, testOrReal, 2);
 			System.out.println(MyUtils.indent(indentationLevel+1) + writeMessageStep+"-2- Producing output (foreign key replaced by value) ...");
-			System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
+			System.out.println(MyUtils.indent(indentationLevel+2) + "Started ...");
 			String[] theFKRecord, aPKRecord;
 
 			//Reading the header and substituting the foreign key field title:
@@ -821,7 +822,7 @@ public class TSVManipulations {
 					if (i >= testOrReal)
 						break;
 				if (i % showProgressInterval == 0)
-					System.out.println(MyUtils.indent(indentationLevel) + Constants.integerFormatter.format(i));
+					System.out.println(MyUtils.indent(indentationLevel+2) + Constants.integerFormatter.format(i));
 
 			}//for (Stri....
 			writer.flush();writer.close();
@@ -834,6 +835,7 @@ public class TSVManipulations {
 			}//if.
 			else
 				fCR.DoneSuccessfully = 1;
+			System.out.println(MyUtils.indent(indentationLevel+2) + "Finished.");
 			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
 		}catch(Exception e){
 			e.printStackTrace();
@@ -982,7 +984,7 @@ public class TSVManipulations {
 
 			//Now joining T1Records and T2Records:
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-3- Joining \"" + inputTSV1 + "\" with \"" + inputTSV2 + "\" (part 1; inner join) ...");
-			Map.Entry<String, ArrayList<String[]>> entry1, entry2;
+			Map.Entry<String, ArrayList<String[]>> entry1;
 			//Inner join:
 			TreeMap<String, ArrayList<String[]>> resultingRecords;
 			if (sortOrder == Constants.SortOrder.ASCENDING_INTEGER){//means that keyfield is an integer.
@@ -1024,33 +1026,32 @@ public class TSVManipulations {
 			int innerJoinCounter = 0;
 			for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter1 = t1Records.entrySet().iterator(); iter1.hasNext();){
 				entry1 = iter1.next();
+				boolean entry1ShouldBeDeleted = false;	
+				if (t2Records.containsKey(entry1.getKey())){
+					ArrayList<String[]> matchedRecordsFromT2 = t2Records.get(entry1.getKey());
+					ArrayList<String[]> joinedValues = new ArrayList<String[]>();
+					for (int j=0; j<entry1.getValue().size(); j++)
+						for (int k=0; k<matchedRecordsFromT2.size(); k++){
+							//Making records of <entry1Values[j], entry2Values[k]>
+							String[] aResultingRecord = MyUtils.concatTwoStringArrays(entry1.getValue().get(j), matchedRecordsFromT2.get(k));
+							joinedValues.add(aResultingRecord);
+						}//for k.
+					resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
+					t2Records.remove(entry1.getKey());
+					entry1ShouldBeDeleted = true;
+					innerJoinCounter++;
+				}//if (t2Re....
 				i++;
 				if (i % showProgressInterval == 0)
-					System.out.println(MyUtils.indent(indentationLevel+2) + Constants.integerFormatter.format(i));
-				boolean entry1ShouldBeDeleted = false;
-				for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter2 = t2Records.entrySet().iterator(); iter2.hasNext();){
-					entry2 = iter2.next();
-					if (entry1.getKey().equals(entry2.getKey())){//:this is the join condition.
-						ArrayList<String[]> joinedValues = new ArrayList<String[]>();
-						for (int j=0; j<entry1.getValue().size(); j++)
-							for (int k=0; k<entry2.getValue().size(); k++){
-								//Making records of <entry1Values[j], entry2Values[k]>
-								String[] aResultingRecord = MyUtils.concatTwoStringArrays(entry1.getValue().get(j), entry2.getValue().get(k));
-								joinedValues.add(aResultingRecord);
-							}//for k.
-						resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
-						iter2.remove();
-						entry1ShouldBeDeleted = true;
-						innerJoinCounter++;
-					}//if.
-				}//for.
+					System.out.println(MyUtils.indent(indentationLevel+3) + Constants.integerFormatter.format(i));
 				if (entry1ShouldBeDeleted)
 					iter1.remove();
 			}//for.
-			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records added in inner join: " + innerJoinCounter);
+			System.out.println(MyUtils.indent(indentationLevel+3) + "Number of records added in inner join: " + innerJoinCounter);
 			//Left join (also part of full join):
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-4- Joining \"" + inputTSV1 + "\" with \"" + inputTSV2 + "\" (part 2; left join) ...");
 			int leftJoinCounter = 0;
+			i = 0;
 			if (joinType == JoinType.LEFT_JOIN || joinType == JoinType.FULL_JOIN){
 				for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter1 = t1Records.entrySet().iterator(); iter1.hasNext();){
 					entry1 = iter1.next();
@@ -1066,15 +1067,19 @@ public class TSVManipulations {
 					resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
 					iter1.remove();
 					leftJoinCounter++;
+					i++;
+					if (i % showProgressInterval == 0)
+						System.out.println(MyUtils.indent(indentationLevel+3) + Constants.integerFormatter.format(i));
 				}//for.
 			}//if.
-			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records added in left join: " + leftJoinCounter);
+			System.out.println(MyUtils.indent(indentationLevel+3) + "Number of records added in left join: " + leftJoinCounter);
 			//Right join (also part of full join):
 			int rightJoinCounter = 0;
+			i = 0;
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-5- Joining \"" + inputTSV1 + "\" with \"" + inputTSV2 + "\" (part 3; right join) ...");
 			if (joinType == JoinType.RIGHT_JOIN || joinType == JoinType.FULL_JOIN){
 				for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter2 = t2Records.entrySet().iterator(); iter2.hasNext();){
-					entry2 = iter2.next();
+					Map.Entry<String, ArrayList<String[]>> entry2 = iter2.next();
 					ArrayList<String[]> joinedValues = new ArrayList<String[]>();
 					for (int j=0; j<entry2.getValue().size(); j++){
 						//Making records of <NULL, entry1Values[j]>             *Note: In fact, NULL is replaced by "".
@@ -1087,9 +1092,12 @@ public class TSVManipulations {
 					resultingRecords.put(entry2.getKey(), joinedValues);//Adding the joining key, entry2.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
 					iter2.remove();
 					rightJoinCounter++;
+					i++;
+					if (i % showProgressInterval == 0)
+						System.out.println(MyUtils.indent(indentationLevel+2) + Constants.integerFormatter.format(i));
 				}//for.
 			}//if.
-			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records added in right join: " + rightJoinCounter);
+			System.out.println(MyUtils.indent(indentationLevel+3) + "Number of records added in right join: " + rightJoinCounter);
 			//Finally, saving the results in the output file:
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-6- Saving the results");
 			String titles = t1Key + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t1NeededFields + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t2NeededFields;
