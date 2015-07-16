@@ -1022,13 +1022,12 @@ public class TSVManipulations {
 			}//else.
 			int i = 0;
 			int innerJoinCounter = 0;
-			System.out.println(t1Records.size());
-			System.out.println(t2Records.size());
 			for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter1 = t1Records.entrySet().iterator(); iter1.hasNext();){
 				entry1 = iter1.next();
 				i++;
 				if (i % showProgressInterval == 0)
 					System.out.println(MyUtils.indent(indentationLevel+2) + Constants.integerFormatter.format(i));
+				boolean entry1ShouldBeDeleted = false;
 				for(Iterator<Map.Entry<String, ArrayList<String[]>>> iter2 = t2Records.entrySet().iterator(); iter2.hasNext();){
 					entry2 = iter2.next();
 					if (entry1.getKey().equals(entry2.getKey())){//:this is the join condition.
@@ -1041,15 +1040,15 @@ public class TSVManipulations {
 							}//for k.
 						resultingRecords.put(entry1.getKey(), joinedValues);//Adding the joining key, entry1.getKey() to the start of each record, records of <entry1Values[j], entry2Values[k]> will be complete.
 						iter2.remove();
+						entry1ShouldBeDeleted = true;
 						innerJoinCounter++;
 					}//if.
 				}//for.
-				iter1.remove();
+				if (entry1ShouldBeDeleted)
+					iter1.remove();
 			}//for.
-			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "Number of records added in inner join: " + innerJoinCounter);
+			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records added in inner join: " + innerJoinCounter);
 			//Left join (also part of full join):
-			System.out.println(t1Records.size());
-			System.out.println(t2Records.size());
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-4- Joining \"" + inputTSV1 + "\" with \"" + inputTSV2 + "\" (part 2; left join) ...");
 			int leftJoinCounter = 0;
 			if (joinType == JoinType.LEFT_JOIN || joinType == JoinType.FULL_JOIN){
@@ -1069,10 +1068,8 @@ public class TSVManipulations {
 					leftJoinCounter++;
 				}//for.
 			}//if.
-			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "Number of records added in left join: " + leftJoinCounter);
+			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records added in left join: " + leftJoinCounter);
 			//Right join (also part of full join):
-			System.out.println(t1Records.size());
-			System.out.println(t2Records.size());
 			int rightJoinCounter = 0;
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-5- Joining \"" + inputTSV1 + "\" with \"" + inputTSV2 + "\" (part 3; right join) ...");
 			if (joinType == JoinType.RIGHT_JOIN || joinType == JoinType.FULL_JOIN){
@@ -1092,7 +1089,7 @@ public class TSVManipulations {
 					rightJoinCounter++;
 				}//for.
 			}//if.
-			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "Number of records added in right join: " + rightJoinCounter);
+			System.out.println(MyUtils.indent(indentationLevel+2) + "Number of records added in right join: " + rightJoinCounter);
 			//Finally, saving the results in the output file:
 			System.out.println(MyUtils.indent(indentationLevel+2) + writeMessageStep + "-6- Saving the results");
 			String titles = t1Key + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t1NeededFields + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + t2NeededFields;
