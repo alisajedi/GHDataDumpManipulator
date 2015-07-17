@@ -1,4 +1,6 @@
+import java.io.File;
 import java.util.Date;
+
 import Utils.Constants;
 import Utils.Constants.JoinType;
 import Utils.Constants.SortOrder;
@@ -59,8 +61,8 @@ public class AggregateInfluenceMetrics {
 				true, showProgressInterval, indentationLevel, testOrReal, "6");
 		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
 		//Now, using this #ofProjectsForkedFromThis, get sum(#ofProjectsForkedFromThis) for each "userId" and save it as "usersAndNumberOfForksFromTheirProjects.tsv":
-		String forksOutputFileName = "usersAndNumberOfForksFromTheirProjects.tsv";
 		String numberOfForksFieldName = "#ofProjectsForkedFromProjectsOfThisUser";
+		String forksOutputFileName = "usersAndNumberOfForksFromTheirProjects.tsv";
 		fCR = TSVManipulations.runGroupBy_sum_andSaveResultToTSV(outputPath, temp_project4_idReplacedByNumberOfForks, outputPath, forksOutputFileName, 
 				"ownerId", title4_numForks, 4, "userId", numberOfForksFieldName, SortOrder.ASCENDING_INTEGER, 
 				true, indentationLevel, testOrReal, showProgressInterval, "7");
@@ -83,17 +85,33 @@ public class AggregateInfluenceMetrics {
 				true, indentationLevel, testOrReal, showProgressInterval, "9");
 		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
 		//#ofFollowers	#ofWatchersOfProjectsOfThisUser
+		System.out.println("10- Deleting the temporary files ...");
+		String[] temporaryFilesToBeDeleted = new String[]{followersOutputFileName, temp_project1_watchers, temp_project2_idReplacedByNumberOfWatchers, watchersOutputFileName, 
+				temp_project3_forks, temp_project4_idReplacedByNumberOfForks, forksOutputFileName, followers_joinedWith_watchers};
+		int numberOfTemporaryFilesDeleted = 0;
+		for (int i=0; i<temporaryFilesToBeDeleted.length; i++){
+			File file = new File(outputPath+"\\"+temporaryFilesToBeDeleted[i]);
+			if (file.exists()){
+				file.delete();
+				numberOfTemporaryFilesDeleted++;
+			}//if.
+			else
+				System.out.println("Cannot find file \"" + temporaryFilesToBeDeleted[i] + "\" to delete it!" );
+		}//for.
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Number of temporary files deleted: " + numberOfTemporaryFilesDeleted + " / " + temporaryFilesToBeDeleted.length);
+		
 		//Summary:
 		System.out.println("-----------------------------------");
-		System.out.println(totalFCR.processed + " files processed.");
-		System.out.println(totalFCR.DoneSuccessfully + " files summaried / converted to TSV successfully.");
+		System.out.println("Summary: ");
+		System.out.println(MyUtils.indent(indentationLevel+1) + totalFCR.processed + " files processed.");
+		System.out.println(MyUtils.indent(indentationLevel+1) + totalFCR.DoneSuccessfully + " files summaried / converted to TSV successfully.");
 		if (totalFCR.errors == 0){
-			System.out.println("Done successfully!");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Done successfully!");
 		}
 		else
-			System.out.println(totalFCR.errors + " errors!");
+			System.out.println(MyUtils.indent(indentationLevel+1) + totalFCR.errors + " errors!");
 		Date d2 = new Date();
-		System.out.println("Total time: " + (float)(d2.getTime()-d1.getTime())/1000  + " seconds.");
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Total time: " + (float)(d2.getTime()-d1.getTime())/1000  + " seconds.");
 		System.out.println("-----------------------------------");
 		System.out.println("-----------------------------------");
 		System.out.println("-----------------------------------");
@@ -101,8 +119,8 @@ public class AggregateInfluenceMetrics {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args) {
-//		aggregateMetrics(Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated, 1, Constants.THIS_IS_REAL, 10000);
-		aggregateMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED, 1, Constants.THIS_IS_REAL, 500000);
+		aggregateMetrics(Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated, 1, Constants.THIS_IS_REAL, 10000);
+//		aggregateMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED, 1, Constants.THIS_IS_REAL, 500000);
 	}
 
 }
