@@ -17,7 +17,7 @@ public class AggregateInfluenceMetrics {
 		FileManipulationResult totalFCR = new FileManipulationResult(), fCR;
 		
 		//1- Followers:
-		String followersOutputFileName = "temp-usersWithAtLeastOneFollower.tsv";
+		String followersOutputFileName = "usersWithAtLeastOneFollowerAndTheirNumberOfFollowers.tsv";
 		String numberOfFollowersFieldName = "#ofFollowers";
 		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "followers.tsv", outputPath, followersOutputFileName, 
 				"userId", 2, "userId", numberOfFollowersFieldName, SortOrder.ASCENDING_INTEGER, 
@@ -101,8 +101,8 @@ public class AggregateInfluenceMetrics {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args) {
-		aggregateMetrics(Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated, 1, Constants.THIS_IS_REAL, 10000);
-//		aggregateMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED, 1, Constants.THIS_IS_REAL, 500000);
+//		aggregateMetrics(Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated, 1, Constants.THIS_IS_REAL, 10000);
+		aggregateMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED, 1, Constants.THIS_IS_REAL, 500000);
 	}
 
 }
