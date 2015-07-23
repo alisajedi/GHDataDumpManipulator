@@ -25,7 +25,7 @@ public class Constants {
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV";
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\JustNumericFields";
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\JustNumericFields\\Aggregated";
-    
+  
   //JustNumberFields (No text field, no dateTime field):
     public static final Map<String, List<String>> DUMP_TABLES_AND_THEIR_FIELDS = ImmutableMap.<String, List<String>> builder() 
 	        .put("commit_comments:neededFields", Arrays.asList(new String[] { "id", "commit_id", "user_id", "line", "position", "comment_id" }))
@@ -130,6 +130,7 @@ public class Constants {
 	        
 	        .build();
 
+
 /*
 //AllFields (includingTextualFields):
     public static final  Map<String, List<String>> DUMP_TABLES_AND_THEIR_FIELDS = ImmutableMap.<String, List<String>> builder() 
@@ -221,8 +222,8 @@ public class Constants {
 //	        .put("schema_info:titlesForNeededFields", Arrays.asList(new String[] { "version" }))
 //	        .put("schema_info:fieldsToRemoveInvalidCharacters", Arrays.asList(new String[] { }))
 	        
-	        .put("users:neededFields", Arrays.asList(new String[] { "id", "login", "email", "created_at" }))
-	        .put("users:titlesForNeededFields", Arrays.asList(new String[] { "id", "login", "email", "createdAt" }))
+	        .put("users:neededFields", Arrays.asList(new String[] { "id", "login", "name", "company", "location", "email", "created_at", "type", "fake", "deleted" }))
+	        .put("users:titlesForNeededFields", Arrays.asList(new String[] { "id", "login", "name", "company", "location", "email", "createdAt", "type", "fake", "deleted" }))
 	        .put("users:fieldsToRemoveInvalidCharacters", Arrays.asList(new String[] { "email" }))
 	        
 	        .put("watchers:neededFields", Arrays.asList(new String[] { "repo_id", "user_id", "created_at" }))

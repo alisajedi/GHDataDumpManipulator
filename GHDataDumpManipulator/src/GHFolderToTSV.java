@@ -213,11 +213,11 @@ public class GHFolderToTSV {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args) {
-		File path = new File(Constants.DATASET_DIRECTORY_GH_MySQL);
-		convertAllFilseInFolderToTSV(path, Constants.DATASET_DIRECTORY_GH_TSV, 10000);
+//		File path = new File(Constants.DATASET_DIRECTORY_GH_MySQL);
+//		convertAllFilseInFolderToTSV(path, Constants.DATASET_DIRECTORY_GH_TSV, 10000);
 
-//		File path = new File(Constants.DATASET_EXTERNAL_DIRECTORY_GH_MySQL);
-//		convertAllFilseInFolderToTSV(path, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, 1000000);
+		File path = new File(Constants.DATASET_EXTERNAL_DIRECTORY_GH_MySQL);
+		convertAllFilseInFolderToTSV(path, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, 1000000);
 		
 //		System.out.println(numberOfASpecificCharacterBeforeAStringBeforeEnd("'dtype=[(str(\\'a\\'),\\'i\\')", '\\', "')"));
 	}//main().

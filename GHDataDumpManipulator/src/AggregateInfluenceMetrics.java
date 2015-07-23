@@ -22,8 +22,8 @@ public class AggregateInfluenceMetrics {
 		FileManipulationResult totalFCR = new FileManipulationResult(), fCR;
 		
 		//1- Followers:
+		String numberOfFollowersFieldName = "numberOfFollowers";
 		String followersOutputFileName = "usersWithAtLeastOneFollowerAndTheirNumberOfFollowers.tsv";
-		String numberOfFollowersFieldName = "#ofFollowers";
 		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "followers.tsv", outputPath, followersOutputFileName, 
 				"userId", 2, "userId", numberOfFollowersFieldName, SortOrder.ASCENDING_INTEGER, 
 				true, indentationLevel, testOrReal, showProgressInterval, "1");
@@ -31,7 +31,7 @@ public class AggregateInfluenceMetrics {
 	
 		//2- Watchers (total # of watchers of all projects of each developer):
 		//First, count the number of watchers for each project (and save it in "temp-projects1-Watchers.tsv"):
-		String temp_project1_watchers = "temp-projects1-Watchers.tsv", title1_projectId = "projectId", title2_numWatchers = "#ofWatchers";
+		String temp_project1_watchers = "temp-projects1-Watchers.tsv", title1_projectId = "projectId", title2_numWatchers = "numberOfWatchers";
 		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "watchers.tsv", outputPath, temp_project1_watchers, "repoId", 2, 
 				title1_projectId, title2_numWatchers, SortOrder.ASCENDING_INTEGER, 
 				true, indentationLevel, testOrReal, showProgressInterval, "2");
@@ -43,7 +43,7 @@ public class AggregateInfluenceMetrics {
 				true, showProgressInterval, indentationLevel, testOrReal, "3");
 		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
 		//Now, using this #ofWatchers, get sum(numberOfWatchers) for each "userId" and save it as "usersAndNumberOfUsersWatchingTheirProjects.tsv":
-		String numberOfWatchersFieldName = "#ofWatchersOfProjectsOfThisUser";
+		String numberOfWatchersFieldName = "numberOfWatchersOfProjectsOfThisUser";
 		String watchersOutputFileName = "usersAndNumberOfUsersWatchingTheirProjects.tsv";
 		fCR = TSVManipulations.runGroupBy_sum_andSaveResultToTSV(outputPath, temp_project2_idReplacedByNumberOfWatchers, outputPath, watchersOutputFileName, 
 				"ownerId", title2_numWatchers, 4, "userId", numberOfWatchersFieldName, SortOrder.ASCENDING_INTEGER, 
@@ -52,7 +52,7 @@ public class AggregateInfluenceMetrics {
 
 		//3-Forks:
 		//First, count the number of forks from each project (and save it in "temp-projects2-Forks.tsv"):
-		String temp_project3_forks = "temp-projects3-Forks.tsv", title3_projectId = "projectId", title4_numForks = "#ofProjectsForkedFromThis";
+		String temp_project3_forks = "temp-projects3-Forks.tsv", title3_projectId = "projectId", title4_numForks = "numberOfProjectsForkedFromThis";
 		fCR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "projects.tsv", outputPath, temp_project3_forks, "forkedFrom", 4, 
 				title3_projectId, title4_numForks, SortOrder.ASCENDING_INTEGER, 
 				true, indentationLevel, testOrReal, showProgressInterval, "5");
@@ -64,7 +64,7 @@ public class AggregateInfluenceMetrics {
 				true, showProgressInterval, indentationLevel, testOrReal, "6");
 		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
 		//Now, using this #ofProjectsForkedFromThis, get sum(#ofProjectsForkedFromThis) for each "userId" and save it as "usersAndNumberOfForksFromTheirProjects.tsv":
-		String numberOfForksFieldName = "#ofProjectsForkedFromProjectsOfThisUser";
+		String numberOfForksFieldName = "numberOfProjectsForkedFromProjectsOfThisUser";
 		String forksOutputFileName = "usersAndNumberOfForksFromTheirProjects.tsv";
 		fCR = TSVManipulations.runGroupBy_sum_andSaveResultToTSV(outputPath, temp_project4_idReplacedByNumberOfForks, outputPath, forksOutputFileName, 
 				"ownerId", title4_numForks, 4, "userId", numberOfForksFieldName, SortOrder.ASCENDING_INTEGER, 
@@ -74,7 +74,7 @@ public class AggregateInfluenceMetrics {
 		//4-Merging the followers with Watchers:
 		String followers_joinedWith_watchers = "temp-join_followers_watchers.tsv";
 		fCR = TSVManipulations.joinTwoTSV(outputPath,followersOutputFileName, outputPath, watchersOutputFileName, outputPath, followers_joinedWith_watchers, 
-				"userId", "userId", JoinType.FULL_JOIN, "#ofFollowers", numberOfWatchersFieldName,
+				"userId", "userId", JoinType.FULL_JOIN, numberOfFollowersFieldName, numberOfWatchersFieldName,
 				SortOrder.ASCENDING_INTEGER, "0", 
 				true, indentationLevel, testOrReal, showProgressInterval, "8");
 		totalFCR = MyUtils.addFileManipulationResults(totalFCR, fCR);
