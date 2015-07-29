@@ -1,9 +1,6 @@
 import java.io.File;
 import java.util.Date;
 
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
-
 import Utils.Constants;
 import Utils.Constants.JoinType;
 import Utils.Constants.SortOrder;
@@ -123,10 +120,6 @@ public class AggregateInfluenceMetrics {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	private static void getProjectStars(){
 		try{
-			GitHub gh = GitHub.connect();
-			GHRepository project1 = new GHRepository();
-			project1 = gh.getRepository("alisajedi/repo3");
-			System.out.println(project1.getSubscribersCount());
 		}catch (Exception e){
 			System.out.println("ERROR");
 		}
@@ -134,9 +127,9 @@ public class AggregateInfluenceMetrics {
 	}//
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	public static void main(String[] args) {
+	public static void main(String[] args)  {
 //		aggregateMetrics(Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated, 1, Constants.THIS_IS_REAL, 10000);
-//		//aggregateMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED, 1, Constants.THIS_IS_REAL, 500000);
+		//aggregateMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED, 1, Constants.THIS_IS_REAL, 500000);
 		System.out.println("AAAAA");
 		getProjectStars();
 		System.out.println("AAAAA");
