@@ -4,6 +4,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import Utils.Constants;
 import Utils.FieldAndType;
@@ -15,11 +18,11 @@ import Utils.MyUtils;
 public class GHFolderToTSV {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	private static FileManipulationResult aggregateResults(FileManipulationResult fcr1, FileManipulationResult fcr2){
+	private static FileManipulationResult aggregateResults(FileManipulationResult fmr1, FileManipulationResult fmr2){
 		FileManipulationResult result = new FileManipulationResult ();
-		result.processed = fcr1.processed + fcr2.processed;
-		result.DoneSuccessfully = fcr1.DoneSuccessfully + fcr2.DoneSuccessfully;
-		result.errors = fcr1.errors + fcr2.errors;
+		result.processed = fmr1.processed + fmr2.processed;
+		result.DoneSuccessfully = fmr1.DoneSuccessfully + fmr2.DoneSuccessfully;
+		result.errors = fmr1.errors + fmr2.errors;
 		return result;
 	}
 	//----------------------------------------------------------------------------------------------------------------------------------------
@@ -210,14 +213,102 @@ public class GHFolderToTSV {
 	}//convertAllFilseInFolderToTSV().
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
+	private static ArrayList<String> getFieldsOfSQLFile(File inputFile, String outputPath, 
+			String[] tableName, 
+			FileManipulationResult[] fmr,
+			int fileCounter, int indentationLevel, 
+			int showProgressInterval){
+		ArrayList<String> fields = new ArrayList<String>();																
+		fmr[0] = new FileManipulationResult();
+		tableName[0] = inputFile.getName().substring(0, inputFile.getName().indexOf(".sql"));
+		System.out.println(fileCounter + ") \"" + tableName + "\": ");
+		String s = ""; 
+		try{
+			BufferedReader br = new BufferedReader(new FileReader(inputFile.getPath())); 
+			System.out.println(MyUtils.indent(indentationLevel) + fileCounter + "-1- Started ...");
+			//Reading field names and their types:
+			String createTableLine = MyUtils.moveTheBufferedReaderCursorToTheLineAfter(br, "CREATE TABLE `");
+			//Fixing tableName (just in case the fileName is different from the one in the "Create Table" command):
+			tableName[0] = createTableLine.substring("CREATE TABLE `".length(), createTableLine.indexOf("`", "CREATE TABLE `".length()+1));
+			
+			while( ((s = br.readLine()) != null) && (s.startsWith("  `")) ){
+				String field = s.substring(3, s.indexOf("`", 3));
+				fields.add(field);
+			} /*while.*/
+
+			fmr[0].DoneSuccessfully++;
+			System.out.println(MyUtils.indent(indentationLevel) + fileCounter + "-1- Finished.");
+			fmr[0].processed++;
+			return fields;
+		}catch(Exception e){
+			e.printStackTrace();										
+			System.out.println(s);			
+			fmr[0].errors++;											
+			return fields;			//JOptionPane.showMessageDialog(null, "An error occured in ....");
+		}
+	}//getFieldsOfSQLFile().
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	private static HashMap<String, List<String>> getFieldsOfAllSQLFilseInFolder(File inputPath, String outputPath, int showProgressInterval) {
+		Date d1 = new Date();
+		HashMap<String, List<String>> result = new HashMap<String, List<String>>();
+		File[] filesList = inputPath.listFiles();
+        int i = 1;
+        FileManipulationResult fmr = new FileManipulationResult();
+        FileManipulationResult[] fmr1 = new FileManipulationResult[1];
+        List<String> list;
+		String[] tableName = new String[1];
+        for(File f : filesList){
+        	if(f.isDirectory())
+        		convertAllFilseInFolderToTSV(f, outputPath, showProgressInterval);
+        	if(f.isFile()){
+        		list = getFieldsOfSQLFile(f, outputPath, tableName, fmr1, i, 2, showProgressInterval);
+                fmr = aggregateResults(fmr, fmr1[0]);
+                result.put(tableName[0], list);
+                System.out.println("-----------------------------------");
+                i++;
+            }
+        }
+		//Summary:
+        System.out.println("-----------------------------------");
+        System.out.println("-----------------------------------");
+		System.out.println(fmr.processed + " files processed.");
+		System.out.println(fmr.DoneSuccessfully + " files were read and their fields were extracted.");
+		if (fmr.errors == 0){
+			System.out.println("Done successfully!");
+		}
+		else
+			System.out.println(fmr.errors + " errors!");
+		Date d2 = new Date();
+		System.out.println("Total time: " + (float)(d2.getTime()-d1.getTime())/1000  + " seconds.");
+        System.out.println("-----------------------------------");
+        System.out.println("-----------------------------------");
+        System.out.println("-----------------------------------");
+        return result;
+	}//getFieldsOfAllSQLFilseInFolder().
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args) {
+		
+		File path = new File(Constants.DATASET_DIRECTORY_GH_MySQL);
+		HashMap<String, List<String>> m = getFieldsOfAllSQLFilseInFolder(path, Constants.DATASET_DIRECTORY_GH_TSV, 10000);
+		System.out.println("Final results:");
+		for(Map.Entry<String,List<String>> entry : m.entrySet()) {
+			System.out.println(entry.getKey() + ":");
+			System.out.println(entry.getValue());
+			System.out.println();
+		}//for.
+		
+		
+		
 //		File path = new File(Constants.DATASET_DIRECTORY_GH_MySQL);
 //		convertAllFilseInFolderToTSV(path, Constants.DATASET_DIRECTORY_GH_TSV, 10000);
 
-		File path = new File(Constants.DATASET_EXTERNAL_DIRECTORY_GH_MySQL);
-		convertAllFilseInFolderToTSV(path, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, 1000000);
+//		File path = new File(Constants.DATASET_EXTERNAL_DIRECTORY_GH_MySQL);
+//		convertAllFilseInFolderToTSV(path, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, 1000000);
+		
 		
 //		System.out.println(numberOfASpecificCharacterBeforeAStringBeforeEnd("'dtype=[(str(\\'a\\'),\\'i\\')", '\\', "')"));
 	}//main().
