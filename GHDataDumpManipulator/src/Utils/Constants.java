@@ -22,9 +22,12 @@ public class Constants {
     public static final String DATASET_DIRECTORY_GH_TSV = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV";
     public static final String DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV\\JustNumericFields";
     public static final String DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__Aggregated = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV\\JustNumericFields\\Aggregated";
+    public static final String DATASET_DIRECTORY_GH_TSV__LANGUAGE_STUDY = "C:\\2-Study\\Influentials\\Data Set\\MySQL-20150401\\TSV\\LanguagesStudy";
+
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV";
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\JustNumericFields";
     public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS__AGGREGATED = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\JustNumericFields\\Aggregated";
+    public static final String DATASET_EXTERNAL_DIRECTORY_GH_TSV__LANGUAGE_STUDY = "E:\\Influentials\\DataSet\\MySQL-20150401\\TSV\\LanguagesStudy";
   
   //JustNumberFields (No text field, no dateTime field):
     public static final Map<String, List<String>> DUMP_TABLES_AND_THEIR_FIELDS = ImmutableMap.<String, List<String>> builder() 
