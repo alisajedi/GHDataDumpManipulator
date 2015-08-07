@@ -247,6 +247,7 @@ public class Constants {
 	public static final DecimalFormat floatFormatter = new DecimalFormat("###,###.#");
 	public static final DecimalFormat highPrecisionFloatFormatter = new DecimalFormat("###,###.######");
 	public static final int NUMBER_OF_TAB_CHARACTERS = 4;
+	public static final int NUMBER_OF_LANGUAGES_TO_CONSIDER_IN_LANGUAGES_STUDY = 10;
 
 	public static final String ALL = "ALL";
 	
