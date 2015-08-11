@@ -1,4 +1,3 @@
-import java.io.File;
 import java.util.Date;
 
 import Utils.Constants;
@@ -26,7 +25,7 @@ public class AggregateInfluenceMetrics {
 				true, indentationLevel, testOrReal, showProgressInterval, "1");
 		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 	
-		//2- Watchers (total # of watchers of all projects of each developer):
+		//2, 3, 4- Watchers (total # of watchers of all projects of each developer):
 		//First, count the number of watchers for each project (and save it in "temp-projects1-Watchers.tsv"):
 		String temp_project1_watchers = "temp-projects1-Watchers.tsv", title1_projectId = "projectId", title2_numWatchers = "numberOfWatchers";
 		fMR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "watchers.tsv", outputPath, temp_project1_watchers, "repoId", 2, 
@@ -47,7 +46,7 @@ public class AggregateInfluenceMetrics {
 				true, indentationLevel, testOrReal, showProgressInterval, "4");
 		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 
-		//3-Forks:
+		//5, 6, 7-Forks:
 		//First, count the number of forks from each project (and save it in "temp-projects2-Forks.tsv"):
 		String temp_project3_forks = "temp-projects3-Forks.tsv", title3_projectId = "projectId", title4_numForks = "numberOfProjectsForkedFromThis";
 		fMR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "projects.tsv", outputPath, temp_project3_forks, "forkedFrom", 4, 
@@ -68,38 +67,27 @@ public class AggregateInfluenceMetrics {
 				true, indentationLevel, testOrReal, showProgressInterval, "7");
 		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 
-		//4-Merging the followers with Watchers:
+		//8-Merging the followers with Watchers:
 		String followers_joinedWith_watchers = "temp-join_followers_watchers.tsv";
-		fMR = TSVManipulations.joinTwoTSV(outputPath,followersOutputFileName, outputPath, watchersOutputFileName, outputPath, followers_joinedWith_watchers, 
+		fMR = TSVManipulations.joinTwoTSVs(outputPath,followersOutputFileName, outputPath, watchersOutputFileName, outputPath, followers_joinedWith_watchers, 
 				"userId", "userId", JoinType.FULL_JOIN, numberOfFollowersFieldName, numberOfWatchersFieldName,
 				SortOrder.ASCENDING_INTEGER, "0", 
 				true, indentationLevel, testOrReal, showProgressInterval, "8");
 		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 
-		//5-Merging the <followers and Watchers> with forks:
+		//9-Merging the <followers and Watchers> with forks:
 		String followersAndWatchers_joinedWith_forks = "followers_watchers_forks.tsv";
-		fMR = TSVManipulations.joinTwoTSV(outputPath,followers_joinedWith_watchers, outputPath, forksOutputFileName, outputPath, followersAndWatchers_joinedWith_forks, 
+		fMR = TSVManipulations.joinTwoTSVs(outputPath,followers_joinedWith_watchers, outputPath, forksOutputFileName, outputPath, followersAndWatchers_joinedWith_forks, 
 				"userId", "userId", JoinType.FULL_JOIN, 
 				numberOfFollowersFieldName+Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE+numberOfWatchersFieldName, 
 				numberOfForksFieldName, SortOrder.ASCENDING_INTEGER, "0", 
 				true, indentationLevel, testOrReal, showProgressInterval, "9");
 		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
-		//#ofFollowers	#ofWatchersOfProjectsOfThisUser
-		System.out.println("10- Deleting the temporary files ...");
-		String[] temporaryFilesToBeDeleted = new String[]{followersOutputFileName, temp_project1_watchers, temp_project2_idReplacedByNumberOfWatchers, watchersOutputFileName, 
-				temp_project3_forks, temp_project4_idReplacedByNumberOfForks, forksOutputFileName, followers_joinedWith_watchers};
-		int numberOfTemporaryFilesDeleted = 0;
-		for (int i=0; i<temporaryFilesToBeDeleted.length; i++){
-			File file = new File(outputPath+"\\"+temporaryFilesToBeDeleted[i]);
-			if (file.exists()){
-				file.delete();
-				numberOfTemporaryFilesDeleted++;
-			}//if.
-			else
-				System.out.println("Cannot find file \"" + temporaryFilesToBeDeleted[i] + "\" to delete it!" );
-		}//for.
-		System.out.println(MyUtils.indent(indentationLevel+1) + "Number of temporary files deleted: " + numberOfTemporaryFilesDeleted + " / " + temporaryFilesToBeDeleted.length);
 		
+		//Deleting the temporary files:
+		MyUtils.deleteTemporaryFiles(outputPath, 
+				new String[]{followersOutputFileName, temp_project1_watchers, temp_project2_idReplacedByNumberOfWatchers, watchersOutputFileName, temp_project3_forks, temp_project4_idReplacedByNumberOfForks, forksOutputFileName, followers_joinedWith_watchers}, 
+				indentationLevel, "10");
 		//Summary:
 		System.out.println("-----------------------------------");
 		System.out.println("Summary: ");

@@ -1,6 +1,12 @@
 package Utils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -156,4 +162,49 @@ public class MyUtils {
 			result[tempIndex+i] = s2[i];
 		return result;
 	}//concatTwoStringArrays().
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static void deleteTemporaryFiles(String path, String[] temporaryFilesToBeDeleted, int indentationLevel, String writeMessageStep){
+		System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Deleting the temporary files ...");
+		int numberOfTemporaryFilesDeleted = 0;
+		for (int i=0; i<temporaryFilesToBeDeleted.length; i++){
+			File file = new File(path+"\\"+temporaryFilesToBeDeleted[i]);
+			if (file.exists()){
+				file.delete();
+				numberOfTemporaryFilesDeleted++;
+			}//if.
+			else
+				System.out.println("Error: Cannot find file \"" + temporaryFilesToBeDeleted[i] + "\" to delete it!" );
+		}//for.
+		System.out.println(MyUtils.indent(indentationLevel+1) + "Number of temporary files deleted: " + numberOfTemporaryFilesDeleted + " / " + temporaryFilesToBeDeleted.length);
+	}//deleteTemporaryFiles(....
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static void copyFile(String inputPath, String inputFileName, String outputPath, String outputFileName, int indentationLevel, String writeMessageStep) throws FileNotFoundException, IOException{
+		MyUtils.println(writeMessageStep + "- Copying file \"" + inputFileName + "\" to \"" + outputFileName + "\"", indentationLevel);
+		File source = new File(inputPath+"\\"+inputFileName);
+		File destination = new File(outputPath+"\\"+outputFileName);
+        FileChannel inputChannel = null;
+        FileChannel outputChannel = null;
+        try {
+            inputChannel = new FileInputStream(source).getChannel();
+            outputChannel = new FileOutputStream(destination).getChannel();
+            outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+        }
+        catch (Exception e){
+        	MyUtils.println("Error in copy.", indentationLevel);        }
+        finally {
+            inputChannel.close();
+            outputChannel.close();
+        }
+	}//copyFile().
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static void renameFile(String inputPath, String inputFileName, String outputPath, String outputFileName, int indentationLevel, String writeMessageStep){
+		MyUtils.println(writeMessageStep + "- Renaming file \"" + inputFileName + "\" to \"" + outputFileName + "\"", indentationLevel);
+		File oldfile = new File(inputPath+"\\"+inputFileName);
+		File newfile = new File(outputPath+"\\"+outputFileName);
+		if(!oldfile.renameTo(newfile))
+        	MyUtils.println("Error in rename.", indentationLevel);        
+	}//renameFile().
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------------------------------------------------
 }
