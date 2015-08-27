@@ -146,7 +146,7 @@ public class MyUtils {
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 	public static FileManipulationResult addFileManipulationResults(FileManipulationResult fCR1, FileManipulationResult fCR2){
 		FileManipulationResult result = new FileManipulationResult();
-		result.DoneSuccessfully = fCR1.DoneSuccessfully + fCR2.DoneSuccessfully;
+		result.doneSuccessfully = fCR1.doneSuccessfully + fCR2.doneSuccessfully;
 		result.processed = fCR1.processed + fCR2.processed;
 		result.errors = fCR1.errors + fCR2.errors;
 		return result;

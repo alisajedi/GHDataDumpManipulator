@@ -92,7 +92,7 @@ public class AggregateInfluenceMetrics {
 		System.out.println("-----------------------------------");
 		System.out.println("Summary: ");
 		System.out.println(MyUtils.indent(indentationLevel+1) + totalFMR.processed + " files processed.");
-		System.out.println(MyUtils.indent(indentationLevel+1) + totalFMR.DoneSuccessfully + " files summaried / converted to TSV successfully.");
+		System.out.println(MyUtils.indent(indentationLevel+1) + totalFMR.doneSuccessfully + " files summaried / converted to TSV successfully.");
 		if (totalFMR.errors == 0){
 			System.out.println(MyUtils.indent(indentationLevel+1) + "Done successfully!");
 		}

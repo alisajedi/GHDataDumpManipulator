@@ -21,7 +21,7 @@ public class GHFolderToTSV {
 	private static FileManipulationResult aggregateResults(FileManipulationResult fmr1, FileManipulationResult fmr2){
 		FileManipulationResult result = new FileManipulationResult ();
 		result.processed = fmr1.processed + fmr2.processed;
-		result.DoneSuccessfully = fmr1.DoneSuccessfully + fmr2.DoneSuccessfully;
+		result.doneSuccessfully = fmr1.doneSuccessfully + fmr2.doneSuccessfully;
 		result.errors = fmr1.errors + fmr2.errors;
 		return result;
 	}
@@ -168,7 +168,7 @@ public class GHFolderToTSV {
 					}/*while.*/																												test = 16;
 				} /*while.*/																												test = 17;
 				writer.flush(); writer.close();
-				result.DoneSuccessfully++;
+				result.doneSuccessfully++;
 			}//if (Constants.DUMP_TABLES_AND_THEIR_FIELDS....
 			System.out.println(MyUtils.indent(indentationLevel) + fileCounter + "-1- Finished.");
 			result.processed++;
@@ -200,7 +200,7 @@ public class GHFolderToTSV {
         System.out.println("-----------------------------------");
         System.out.println("-----------------------------------");
 		System.out.println(fcr.processed + " files processed.");
-		System.out.println(fcr.DoneSuccessfully + " files converted to TSV.");
+		System.out.println(fcr.doneSuccessfully + " files converted to TSV.");
 		if (fcr.errors == 0){
 			System.out.println("Done successfully!");
 		}
@@ -236,7 +236,7 @@ public class GHFolderToTSV {
 				fields.add(field);
 			} /*while.*/
 
-			fmr[0].DoneSuccessfully++;
+			fmr[0].doneSuccessfully++;
 			System.out.println(MyUtils.indent(indentationLevel) + fileCounter + "-1- Finished.");
 			fmr[0].processed++;
 			return fields;
@@ -273,7 +273,7 @@ public class GHFolderToTSV {
         System.out.println("-----------------------------------");
         System.out.println("-----------------------------------");
 		System.out.println(fmr.processed + " files processed.");
-		System.out.println(fmr.DoneSuccessfully + " files were read and their fields were extracted.");
+		System.out.println(fmr.doneSuccessfully + " files were read and their fields were extracted.");
 		if (fmr.errors == 0){
 			System.out.println("Done successfully!");
 		}
