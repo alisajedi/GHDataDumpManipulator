@@ -3,9 +3,7 @@ package Utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -178,7 +176,8 @@ public class MyUtils {
 		System.out.println(MyUtils.indent(indentationLevel+1) + "Number of temporary files deleted: " + numberOfTemporaryFilesDeleted + " / " + temporaryFilesToBeDeleted.length);
 	}//deleteTemporaryFiles(....
 	//------------------------------------------------------------------------------------------------------------------------------------------------
-	public static void copyFile(String inputPath, String inputFileName, String outputPath, String outputFileName, int indentationLevel, String writeMessageStep) throws FileNotFoundException, IOException{
+	public static FileManipulationResult copyFile(String inputPath, String inputFileName, String outputPath, String outputFileName, int indentationLevel, String writeMessageStep) {
+		FileManipulationResult result = new FileManipulationResult();
 		MyUtils.println(writeMessageStep + "- Copying file \"" + inputFileName + "\" to \"" + outputFileName + "\"", indentationLevel);
 		File source = new File(inputPath+"\\"+inputFileName);
 		File destination = new File(outputPath+"\\"+outputFileName);
@@ -188,13 +187,24 @@ public class MyUtils {
             inputChannel = new FileInputStream(source).getChannel();
             outputChannel = new FileOutputStream(destination).getChannel();
             outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+            result.doneSuccessfully = 1;
+            result.errors = 0;
         }
         catch (Exception e){
+            result.doneSuccessfully = 0;
+            result.errors = 1;
         	MyUtils.println("Error in copy.", indentationLevel);        }
         finally {
-            inputChannel.close();
-            outputChannel.close();
+        	result.processed = 1;
+        	try{
+        		inputChannel.close();
+        		outputChannel.close();
+        	}
+        	catch(Exception e){
+        		MyUtils.println("Error in closing i/o channel!", indentationLevel);
+        	}
         }
+        return result;
 	}//copyFile().
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 	public static void renameFile(String inputPath, String inputFileName, String outputPath, String outputFileName, int indentationLevel, String writeMessageStep){

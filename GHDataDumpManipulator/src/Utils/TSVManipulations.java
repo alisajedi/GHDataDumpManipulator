@@ -1143,39 +1143,40 @@ public class TSVManipulations {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//Note that in this method, the first TSV file should be inclusive of all id's. Otherwise since it joins the first two files, and then the rest of the files one by one, it may lead to unwanted results:
 	//Also only one field from each table will be kept (neededFields).
-	public static FileManipulationResult joinSeveralTSVs(String iOPath, int numberOfTSVFiles, String[] inputTSV, String outputTSV, 
-		String[] keysToJoin, Constants.JoinType joinType, String[] neededFields, 
+	public static FileManipulationResult joinSeveralTSVs(String iOPath, ArrayList<String> inputTSV, String outputTSVFileName, 
+		ArrayList<String> keysToJoin, Constants.JoinType joinType, ArrayList<String> neededFields, 
 		Constants.SortOrder sortOrder, String substituteForNullValuesInJoin, //:the sortOrder is for sorting the records while processing. If the key fields are "integer" then it's better to select ASCENDING_INTEGER (otherwise DEFAULT_FOR_STRING).
 		boolean wrapOutputInLines, int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep
 		){//Join condition: inputTSV1.T1Key = inputTSV2.T2Key
 			if (wrapOutputInLines)
 				MyUtils.println("-----------------------------------", indentationLevel);
+			int numberOfTSVFiles = inputTSV.size();
 			MyUtils.println(writeMessageStep + "- Joining " + numberOfTSVFiles + " files (in " + (numberOfTSVFiles-1) + " steps):", indentationLevel);
 			FileManipulationResult totalFMR = new FileManipulationResult(), fMR;
 			try{ 
 				//Handle files: These are the handles for the first file (#0). Then, in a loop, we join this file with the file number "i" (from 1 to n-1), and store the results in the same handle variables:
 				String handlingInputFileName = "handlingInput.tsv",   
-						handlingKeyToJoin = keysToJoin[0], //this field is fixed and transfered to the new file produced each time.
-						handlingNeededFields = neededFields[0], 
+						handlingKeyToJoin = keysToJoin.get(0), //this field is fixed and transfered to the new file produced each time.
+						handlingNeededFields = neededFields.get(0), 
 						handlingTemporaryOutputTSV = "temporaryOutput.tsv";		
-				MyUtils.copyFile(iOPath, inputTSV[0], iOPath, handlingInputFileName, indentationLevel+1, writeMessageStep+"-1");
+				MyUtils.copyFile(iOPath, inputTSV.get(0), iOPath, handlingInputFileName, indentationLevel+1, writeMessageStep+"-1");
 				MyUtils.println(writeMessageStep+"-2- Joins", indentationLevel+1);
 				for (int i=1; i<numberOfTSVFiles; i++){
 					//join handle file with file #i, and, put the results back in the handle (to be looked in the next iteration):
 					MyUtils.println(writeMessageStep+"-2-"+i+"- Iterating over "+(numberOfTSVFiles-1)+" files: #"+i, indentationLevel+2);
 //					if (i == 2)
 //						JOptionPane.showMessageDialog(null, "Stop here!", "java", JOptionPane.PLAIN_MESSAGE);
-					fMR = TSVManipulations.joinTwoTSVs(iOPath, handlingInputFileName, iOPath, inputTSV[i], iOPath, handlingTemporaryOutputTSV, 
-							handlingKeyToJoin, keysToJoin[i], joinType, 
-							handlingNeededFields, neededFields[i], SortOrder.ASCENDING_INTEGER, substituteForNullValuesInJoin, 
+					fMR = TSVManipulations.joinTwoTSVs(iOPath, handlingInputFileName, iOPath, inputTSV.get(i), iOPath, handlingTemporaryOutputTSV, 
+							handlingKeyToJoin, keysToJoin.get(i), joinType, 
+							handlingNeededFields, neededFields.get(i), SortOrder.ASCENDING_INTEGER, substituteForNullValuesInJoin, 
 							false, indentationLevel+3, testOrReal, showProgressInterval, writeMessageStep+"-2-"+i+"-1");
 					totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 					MyUtils.deleteTemporaryFiles(iOPath, new String[]{handlingInputFileName}, indentationLevel+3, writeMessageStep+"-2-"+i+"-2");
 					MyUtils.renameFile(iOPath, handlingTemporaryOutputTSV, iOPath, handlingInputFileName, indentationLevel+3, writeMessageStep+"-2-"+i+"-3");
-					handlingNeededFields = concatTwoSetsOfFields(handlingNeededFields, neededFields[i]);
+					handlingNeededFields = concatTwoSetsOfFields(handlingNeededFields, neededFields.get(i));
 				}//for.
-				MyUtils.deleteTemporaryFiles(iOPath, new String[]{outputTSV}, indentationLevel+1, writeMessageStep+"-3");
-				MyUtils.renameFile(iOPath, handlingInputFileName, iOPath, outputTSV, indentationLevel+1, writeMessageStep+"-4");
+				MyUtils.deleteTemporaryFiles(iOPath, new String[]{outputTSVFileName}, indentationLevel+1, writeMessageStep+"-3");
+				MyUtils.renameFile(iOPath, handlingInputFileName, iOPath, outputTSVFileName, indentationLevel+1, writeMessageStep+"-4");
 				totalFMR.doneSuccessfully = 1;
 			}catch(Exception e){
 				e.printStackTrace();
@@ -1213,12 +1214,27 @@ public class TSVManipulations {
 //				"id", "numberOfWatchersOfProjectsOfThisUser_1_JavaScript", SortOrder.ASCENDING_INTEGER, "0", 
 //				false, 1, Constants.THIS_IS_REAL, 1000, "1");
 
+		ArrayList<String> fileNamesToJoin = new ArrayList<String>();
+		fileNamesToJoin.add("users.tsv");
+		fileNamesToJoin.add("usersAndNumberOfUsersWatchingTheirProjects1_JavaScript.tsv");
+		fileNamesToJoin.add("usersAndNumberOfUsersWatchingTheirProjects2_Ruby.tsv");
+		fileNamesToJoin.add("usersAndNumberOfUsersWatchingTheirProjects3_Python.tsv");
 		
-		joinSeveralTSVs(iOPath, 4, 
-				new String[]{"users.tsv", "usersAndNumberOfUsersWatchingTheirProjects1_JavaScript.tsv", "usersAndNumberOfUsersWatchingTheirProjects2_Ruby.tsv", "usersAndNumberOfUsersWatchingTheirProjects3_Python.tsv"}, 
-				"Out.tsv", new String[]{"id", "userId", "userId", "userId"}, JoinType.FULL_JOIN, 
-				new String[]{"id\tlogin", "numberOfWatchersOfProjectsOfThisUser_1_JavaScript", "numberOfWatchersOfProjectsOfThisUser_2_Ruby", "numberOfWatchersOfProjectsOfThisUser_3_Python"}, 
-				SortOrder.ASCENDING_INTEGER, "0", true, 1, Constants.THIS_IS_REAL, 10000, "1");
+		ArrayList<String> keysToJoin = new ArrayList<String>();
+		keysToJoin.add("id");
+		keysToJoin.add("userId");
+		keysToJoin.add("userId");
+		keysToJoin.add("userId");
+
+		ArrayList<String> neededFields = new ArrayList<String>();
+		keysToJoin.add("id\tlogin");
+		keysToJoin.add("numberOfWatchersOfProjectsOfThisUser_1_JavaScript");
+		keysToJoin.add("numberOfWatchersOfProjectsOfThisUser_2_Ruby");
+		keysToJoin.add("numberOfWatchersOfProjectsOfThisUser_3_Python");
+
+		joinSeveralTSVs(iOPath, fileNamesToJoin, "Out.tsv", keysToJoin, JoinType.FULL_JOIN, neededFields, 
+			SortOrder.ASCENDING_INTEGER, "0", true, 1, Constants.THIS_IS_REAL, 10000, "1");
+		
 //		joinSeveralTSVs(Constants.DATASET_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 4, 
 //				new String[]{"users.tsv", "usersAndNumberOfUsersWatchingTheirProjects1_JavaScript.tsv", "usersAndNumberOfUsersWatchingTheirProjects2_Ruby.tsv", "usersAndNumberOfUsersWatchingTheirProjects3_Python.tsv"}, 
 //				"Out.tsv", new String[]{"id", "userId", "userId", "userId"}, JoinType.FULL_JOIN, 

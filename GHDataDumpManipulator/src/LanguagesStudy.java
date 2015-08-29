@@ -17,8 +17,10 @@ import Utils.Constants.SortOrder;
 public class LanguagesStudy {
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	public static void countLanguages(String inputPath, String inputPathForJustNumericFields, String outputPath, 
+	public static void measure_languageBased_WatchAndForkInfluenceMetrics(String inputPath, String inputPathForJustNumericFields, String outputPath, 
 			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep){
+		//There should be these files (with all fields) in the inputPath: "projects.tsv", "users.tsv" and "watchers.tsv".
+		//There should be this file (just numeric fields) in the inputPathForJustNumericFields: "projects.tsv" with 4 columns.
 		Date d1 = new Date();
 		System.out.println("-----------------------------------");
 		System.out.println("-----------------------------------");
@@ -77,10 +79,18 @@ public class LanguagesStudy {
 		}//for(Map.Entry....
 		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 		System.out.println("======================");
-		//Comment ?
-		//3- Get the #ofWatchers and #ofForks of all users for each top language (first 10 = first Constants.NUMBER_OF_LANGUAGES_TO_CONSIDER_IN_LANGUAGES_STUDY):
-		//Comment ?
+
+		//4- counting languageBased#ofWatchers and languageBased#ofForks of every user (for each top language) (first 10 = first Constants.NUMBER_OF_LANGUAGES_TO_CONSIDER_IN_LANGUAGES_STUDY):
+		//and saving them in separate files (all with PK="userId")
 		System.out.println("4- Counting #of_LANGUAGE_Watchers and #of_LANGUAGE_Forks for users: ");
+		//First, define (and initialize) arrayLists for keeping file names and field names for joining them later:
+		ArrayList<String> fileNamesForLanguageBasedInfluenceMetrics = new ArrayList<String>();
+		fileNamesForLanguageBasedInfluenceMetrics.add("users.tsv");
+		ArrayList<String> keysToJoin = new ArrayList<String>();
+		keysToJoin.add("id");
+		ArrayList<String> neededFields = new ArrayList<String>();
+		neededFields.add("id\tlogin");
+		//Now, counting languageBased#ofWatchers and languageBased#ofForks of every user (for each top language): 
 		numberOfLanguagesConsidered = 0;
 		for (Map.Entry<String, ArrayList<String[]>> entry:numberOfProjectsAndRespectiveLanguages.entrySet()){
 			if (!entry.getValue().get(0)[0].equals("")){//:i.e., if this is not the number of projects without a language.
@@ -94,7 +104,7 @@ public class LanguagesStudy {
 							title1_projectId = "projectId", title2_numWatchers = "numberOfWatchers";
 					fMR = TSVManipulations.runGroupBy_count_andSaveResultToTSV(inputPath, "watchers.tsv", outputPath, temp_project1_watchers, "repoId", 2, 
 							title1_projectId, title2_numWatchers, SortOrder.ASCENDING_INTEGER, 
-							true, indentationLevel+2, testOrReal, showProgressInterval, writeMessageStep+"-4-" + numberOfLanguagesConsidered + "-1");
+							true, indentationLevel+2, testOrReal, showProgressInterval*2, writeMessageStep+"-4-" + numberOfLanguagesConsidered + "-1");
 					totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
 					
 					//Then, using this number of watchers, convert <projectId, userId> in 'filteredProjectsFileName' to <#OfWatchers, userId> and save it in 'temp_project1_watchers_i_LANGUAGE_idReplacedByNumberOfWatchers':
@@ -112,6 +122,10 @@ public class LanguagesStudy {
 							"ownerId", title2_numWatchers, 4, "userId", numberOfWatchersFieldName, SortOrder.ASCENDING_INTEGER, 
 							true, indentationLevel+2, testOrReal, showProgressInterval, writeMessageStep+"-4-" + numberOfLanguagesConsidered + "-3");
 					totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
+					//Providing file names and field names for joining them later:
+					fileNamesForLanguageBasedInfluenceMetrics.add(watchersOutputFileName);
+					keysToJoin.add("userId");
+					neededFields.add(numberOfWatchersFieldName);
 					
 					//Deleting temporary files:
 					MyUtils.deleteTemporaryFiles(outputPath, new String[]{temp_project1_watchers, temp_project1_idReplacedByNumberOfWatchers}, 
@@ -140,7 +154,11 @@ public class LanguagesStudy {
 							"ownerId", title4_numForks, 4, "userId", numberOfForksFieldName, SortOrder.ASCENDING_INTEGER, 
 							true, indentationLevel+2, testOrReal, showProgressInterval, writeMessageStep+"-4-" + numberOfLanguagesConsidered + "-7");
 					totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
-
+					//Providing file names and field names for joining them later:
+					fileNamesForLanguageBasedInfluenceMetrics.add(forksOutputFileName);
+					keysToJoin.add("userId");
+					neededFields.add(numberOfForksFieldName);
+					
 					//Deleting temporary files:
 					MyUtils.deleteTemporaryFiles(outputPath, new String[]{temp_project2_forks, temp_project2_idReplacedByNumberOfForks}, 
 							indentationLevel+2, "4-" + numberOfLanguagesConsidered + writeMessageStep+"-4-" + numberOfLanguagesConsidered + "-8");
@@ -148,10 +166,24 @@ public class LanguagesStudy {
 					if (numberOfLanguagesConsidered >= Constants.NUMBER_OF_LANGUAGES_TO_CONSIDER_IN_LANGUAGES_STUDY)
 						break;
 				}
-				if (numberOfLanguagesConsidered >= Constants.NUMBER_OF_LANGUAGES_TO_CONSIDER_IN_LANGUAGES_STUDY)
-					break;
 			}//if (!entry....
+			if (numberOfLanguagesConsidered >= Constants.NUMBER_OF_LANGUAGES_TO_CONSIDER_IN_LANGUAGES_STUDY)
+				break;
 		}//for(Map.Entry....
+
+		//5- Joining userId from "users.tsv" with all files related to top (10) languages (several files for languageBased#ofWatchers and languageBased#ofForks):
+		MyUtils.println(writeMessageStep+"5- Joining all output files:", indentationLevel);
+		//Copying "users.tsv" to outputPath, since we are joining it with several other files (which are generated in this method), and all the input files for the join process should be in one folder: 
+		fMR = MyUtils.copyFile(inputPath, "users.tsv", outputPath, "users.tsv", indentationLevel, writeMessageStep+"-5-1");
+		totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
+		//Joining:
+		TSVManipulations.joinSeveralTSVs(outputPath, fileNamesForLanguageBasedInfluenceMetrics, 
+				"Out.tsv", keysToJoin, JoinType.FULL_JOIN, neededFields, 
+				SortOrder.ASCENDING_INTEGER, "0", true, 1, Constants.THIS_IS_REAL, 10000, writeMessageStep+"-5-2");
+		//Deleting temporary "users.tsv" file:
+		MyUtils.deleteTemporaryFiles(outputPath, new String[]{"users.tsv"}, 
+				indentationLevel, writeMessageStep+"-5-3");
+		
 		//Summary:
 		System.out.println("-----------------------------------");
 		System.out.println("Summary: ");
@@ -167,33 +199,18 @@ public class LanguagesStudy {
 		System.out.println("-----------------------------------");
 		System.out.println("-----------------------------------");
 		System.out.println("-----------------------------------");
-	}//countLanguages().	
+	}//countLanguages().
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
-	public static void summarizeProjectBasedWatchAndForkInfluenceMetrics(String inputPath, String inputPathForJustNumericFields, String outputPath, 
-			int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep){
-				
-//		countLanguages(Constants.DATASET_DIRECTORY_GH_TSV, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 
-//		1, Constants.THIS_IS_REAL, 500000, "1");
-		
-		countLanguages(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 
-				1, Constants.THIS_IS_REAL, 5000000, "1");
-
-		TSVManipulations.joinSeveralTSVs(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 4, 
-				new String[]{"users.tsv", "usersAndNumberOfUsersWatchingTheirProjects1_JavaScript.tsv", "usersAndNumberOfUsersWatchingTheirProjects2_Ruby.tsv", "usersAndNumberOfUsersWatchingTheirProjects3_Python.tsv"}, 
-				"Out.tsv", new String[]{"id", "userId", "userId", "userId"}, JoinType.FULL_JOIN, 
-				new String[]{"id\tlogin", "numberOfWatchersOfProjectsOfThisUser_1_JavaScript", "numberOfWatchersOfProjectsOfThisUser_2_Ruby", "numberOfWatchersOfProjectsOfThisUser_3_Python"}, 
-				SortOrder.ASCENDING_INTEGER, "0", true, 1, Constants.THIS_IS_REAL, 10000, "2");
-
-	}//summarizeProjectBasedWatchAndForkInfluenceMetrics().
-	//----------------------------------------------------------------------------------------------------------------------------------------
-	//--------------------------------------------------------------------------------------)--------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		summarizeProjectBasedWatchAndForkInfluenceMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 
+//		countLanguages(Constants.DATASET_DIRECTORY_GH_TSV, Constants.DATASET_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 
+//		1, Constants.THIS_IS_REAL, 500000, "1");
+
+		measure_languageBased_WatchAndForkInfluenceMetrics(Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__JUST_NUMERIC_FIELDS, Constants.DATASET_EXTERNAL_DIRECTORY_GH_TSV__LANGUAGE_STUDY, 
 				1, Constants.THIS_IS_REAL, 5000000, "1");
 	
 	}
