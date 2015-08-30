@@ -161,7 +161,7 @@ public class MyUtils {
 		return result;
 	}//concatTwoStringArrays().
 	//------------------------------------------------------------------------------------------------------------------------------------------------
-	public static void deleteTemporaryFiles(String path, String[] temporaryFilesToBeDeleted, int indentationLevel, String writeMessageStep){
+	public static void deleteTemporaryFiles(String path, String[] temporaryFilesToBeDeleted, boolean showErrorMessageIfAFileDoesNotExist, int indentationLevel, String writeMessageStep){
 		System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Deleting the temporary files ...");
 		int numberOfTemporaryFilesDeleted = 0;
 		for (int i=0; i<temporaryFilesToBeDeleted.length; i++){
@@ -171,7 +171,8 @@ public class MyUtils {
 				numberOfTemporaryFilesDeleted++;
 			}//if.
 			else
-				System.out.println("Error: Cannot find file \"" + temporaryFilesToBeDeleted[i] + "\" to delete it!" );
+				if (showErrorMessageIfAFileDoesNotExist)
+					System.out.println("Error: Cannot find file \"" + temporaryFilesToBeDeleted[i] + "\" to delete it!" );
 		}//for.
 		System.out.println(MyUtils.indent(indentationLevel+1) + "Number of temporary files deleted: " + numberOfTemporaryFilesDeleted + " / " + temporaryFilesToBeDeleted.length);
 	}//deleteTemporaryFiles(....

@@ -87,7 +87,7 @@ public class AggregateInfluenceMetrics {
 		//Deleting the temporary files:
 		MyUtils.deleteTemporaryFiles(outputPath, 
 				new String[]{followersOutputFileName, temp_project1_watchers, temp_project2_idReplacedByNumberOfWatchers, watchersOutputFileName, temp_project3_forks, temp_project4_idReplacedByNumberOfForks, forksOutputFileName, followers_joinedWith_watchers}, 
-				indentationLevel, "10");
+				true, indentationLevel, "10");
 		//Summary:
 		System.out.println("-----------------------------------");
 		System.out.println("Summary: ");

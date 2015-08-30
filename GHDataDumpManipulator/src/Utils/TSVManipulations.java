@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 
+
 import javax.swing.JOptionPane;
 
 import Utils.Constants.FieldType;
@@ -967,6 +968,7 @@ public class TSVManipulations {
 				result.errors = 1;
 			//Reading needed fields from TSV1:
 			FileManipulationResult[] fMRArray = new FileManipulationResult[1]; 
+			fMRArray[0] = new FileManipulationResult();
 			TreeMap<String, ArrayList<String[]>> t1Records = readNonUniqueKeyAndItsValueFromTSV(
 					inputPath1 + "\\" + inputTSV1, fMRArray, null, t1KeyNumber, SortOrder.DEFAULT_FOR_STRING, tSVTitles1.length, neededFieldNumbers1, 
 					LogicalOperand.NO_CONDITION, 
@@ -1171,11 +1173,12 @@ public class TSVManipulations {
 							handlingNeededFields, neededFields.get(i), SortOrder.ASCENDING_INTEGER, substituteForNullValuesInJoin, 
 							false, indentationLevel+3, testOrReal, showProgressInterval, writeMessageStep+"-2-"+i+"-1");
 					totalFMR = MyUtils.addFileManipulationResults(totalFMR, fMR);
-					MyUtils.deleteTemporaryFiles(iOPath, new String[]{handlingInputFileName}, indentationLevel+3, writeMessageStep+"-2-"+i+"-2");
+					MyUtils.deleteTemporaryFiles(iOPath, new String[]{handlingInputFileName}, true, indentationLevel+3, writeMessageStep+"-2-"+i+"-2");
 					MyUtils.renameFile(iOPath, handlingTemporaryOutputTSV, iOPath, handlingInputFileName, indentationLevel+3, writeMessageStep+"-2-"+i+"-3");
 					handlingNeededFields = concatTwoSetsOfFields(handlingNeededFields, neededFields.get(i));
 				}//for.
-				MyUtils.deleteTemporaryFiles(iOPath, new String[]{outputTSVFileName}, indentationLevel+1, writeMessageStep+"-3");
+				//Delete the file outputTSVFileName, if exists (which can be result of another running of the program):
+				MyUtils.deleteTemporaryFiles(iOPath, new String[]{outputTSVFileName}, false, indentationLevel+1, writeMessageStep+"-3");
 				MyUtils.renameFile(iOPath, handlingInputFileName, iOPath, outputTSVFileName, indentationLevel+1, writeMessageStep+"-4");
 				totalFMR.doneSuccessfully = 1;
 			}catch(Exception e){
