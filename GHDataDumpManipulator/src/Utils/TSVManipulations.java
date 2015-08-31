@@ -1143,6 +1143,112 @@ public class TSVManipulations {
 	}//joinTwoTSV().
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
+	public static FileManipulationResult joinTwoTSVsWithIdenticalIDs(String inputPath1, String inputTSV1, String inputPath2, String inputTSV2, String outputPath, String outputTSV, 
+			String t1Key, String t2Key, ArrayList<String> t1NeededFields, ArrayList<String> t2NeededFields, 
+			boolean wrapOutputInLines, int indentationLevel, long testOrReal, int showProgressInterval, String writeMessageStep
+			){//This method joins two files with the same number of rows, and the same id's for each line.
+		if (wrapOutputInLines)
+			MyUtils.println("-----------------------------------", indentationLevel);
+		FileManipulationResult result = new FileManipulationResult();	
+		try{ 
+			System.out.println(MyUtils.indent(indentationLevel) + writeMessageStep + "- Joining [with identical ID's] (\"" + inputTSV1 + "\" and \"" + inputTSV2 + "\"):");
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Started ...");
+			int t1KeyNumber = Constants.ERROR, t2KeyNumber = Constants.ERROR;
+			
+			//Determining needed fields from TSV1: 
+			BufferedReader br1;
+			br1 = new BufferedReader(new FileReader(inputPath1 + "\\" + inputTSV1)); 
+			String s1 = br1.readLine();
+			String[] tSVTitles1 = s1.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			HashSet<Integer> neededFieldNumbers1 = new HashSet<Integer>();
+			for (int j=0; j<t1NeededFields.size(); j++)//: iterate over all needed titles from TSV1.
+				for (int k=0; k< tSVTitles1.length; k++){//: iterate over all titles currently in TSV1 file.
+					if (tSVTitles1[k].equals(t1NeededFields.get(j)))
+						neededFieldNumbers1.add(k);
+					if (tSVTitles1[k].equals(t1Key))
+						t1KeyNumber = k;
+			}//for.
+			if (t1KeyNumber == Constants.ERROR)
+				result.errors = 1;
+
+			//Determining needed fields from TSV2: 
+			BufferedReader br2;
+			br2 = new BufferedReader(new FileReader(inputPath2 + "\\" + inputTSV2)); 
+			String s2 = br2.readLine();
+			String[] tSVTitles2 = s2.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+			HashSet<Integer> neededFieldNumbers2 = new HashSet<Integer>();
+			for (int j=0; j<t2NeededFields.size(); j++)//: iterate over all needed titles from TSV1.
+				for (int k=0; k< tSVTitles2.length; k++){//: iterate over all titles currently in TSV1 file.
+					if (tSVTitles2[k].equals(t2NeededFields.get(j)))
+						neededFieldNumbers2.add(k);
+					if (tSVTitles2[k].equals(t2Key))
+						t2KeyNumber = k;
+			}//for.
+			if (t2KeyNumber == Constants.ERROR)
+				result.errors = 1;
+			
+			FileWriter writer = new FileWriter(outputPath + "\\" + outputTSV);
+			int i = 0;
+			String[] fields1, fields2;
+			String newGeneratedLine;
+			while ((result.errors==0) && (s1!=null) && (s2!=null)){//: s1 and s2 are initialized with the titles.
+				fields1 = s1.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+				fields2 = s2.split(Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE);
+				newGeneratedLine = "";
+				//First, adding the needed fields from first file:
+				String t1KeyValueInALine = fields1[t1KeyNumber];
+				for (int j=0; j<fields1.length; j++)
+					if (neededFieldNumbers1.contains(j))
+						if (newGeneratedLine.equals(""))
+							newGeneratedLine = fields1[j];
+						else
+							newGeneratedLine = newGeneratedLine + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + fields1[j];
+				//Then adding the needed fields from second file:
+				String t2KeyValueInALine = fields2[t2KeyNumber];
+				for (int k=0; k<fields2.length; k++)
+					if (neededFieldNumbers2.contains(k))
+						if (newGeneratedLine.equals(""))
+							newGeneratedLine = fields2[k];
+						else
+							newGeneratedLine = newGeneratedLine + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + fields2[k];
+				if (!t1KeyValueInALine.equals(t2KeyValueInALine))//If so, this interferes with the goal of this method. The two files should have the same key value in similar lines.
+					result.errors = 1;
+				newGeneratedLine = newGeneratedLine + "\n";
+				writer.append(newGeneratedLine);
+				s1 = br1.readLine();
+				s2 = br2.readLine();
+
+				i++;
+				if (testOrReal > Constants.THIS_IS_REAL)
+					if (i >= testOrReal)
+						break;
+				if (i % showProgressInterval == 0)
+					System.out.println(MyUtils.indent(indentationLevel+1) + Constants.integerFormatter.format(i));
+			}//while
+			
+			writer.flush();    writer.close();
+			br1.close();
+			br2.close();
+
+			System.out.println(MyUtils.indent(indentationLevel+1) + "Finished.");
+			if (result.errors > 0)
+				result.doneSuccessfully = 0;
+			else
+				result.doneSuccessfully = 1;
+		}catch(Exception e){
+			result.errors = 1;
+			result.doneSuccessfully = 0;
+			e.printStackTrace();
+		}
+		result.processed=1;
+		if (wrapOutputInLines)
+			MyUtils.println("-----------------------------------", indentationLevel);
+		return result;
+	}//joinTwoTSVsWithIdenticalIDs().
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
 	//Note that in this method, the first TSV file should be inclusive of all id's. Otherwise since it joins the first two files, and then the rest of the files one by one, it may lead to unwanted results:
 	//Also only one field from each table will be kept (neededFields).
 	public static FileManipulationResult joinSeveralTSVs(String iOPath, ArrayList<String> inputTSV, String outputTSVFileName, 
@@ -1196,6 +1302,8 @@ public class TSVManipulations {
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------------------------------------------------------------
 	public static String concatTwoSetsOfFields(String fields1, String fields2){

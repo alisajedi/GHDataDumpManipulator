@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -216,6 +217,12 @@ public class MyUtils {
         	MyUtils.println("Error in rename.", indentationLevel);        
 	}//renameFile().
 	//------------------------------------------------------------------------------------------------------------------------------------------------
+	public static String convertArrayListOfStringToDelimiterSeparatedString(ArrayList<String> aL){
+		String result = aL.get(0);
+		for (int i=1; i<aL.size(); i++)
+			result = result + Constants.SEPARATOR_FOR_FIELDS_IN_TSV_FILE + aL.get(i);
+		return result;
+	}//convertArrayListOfStringToDelimiterSeparatedString().
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------------------------------------------------------------------------
 }
